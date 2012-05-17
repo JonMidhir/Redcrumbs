@@ -29,7 +29,7 @@ module Redcrumbs
     end
     
     def full_creator
-      creator_class.where(creator_id => self.creator_id).first
+      creator_class.where(creator_primary_key => self.creator_id).first
     end
 
     def target
@@ -41,7 +41,7 @@ module Redcrumbs
     end
 
     def full_target
-      target_class.where(target_id => self.creator_id).first
+      target_class.where(target_primary_key => self.creator_id).first
     end
   end
 end

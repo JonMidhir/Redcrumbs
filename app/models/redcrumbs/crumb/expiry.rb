@@ -2,18 +2,22 @@ module Redcrumbs
   module Crumb::Expiry
     extend ActiveSupport::Concern
     
-    def deletable?
-      if !!user_zid && !!target_zid
-        checked? && checked_by_user_at > 3.days.ago && checked_by_target_at > 3.days.ago
-      elsif !!user_zid
-        checked? && checked_by_user_at > 3.days.ago
-      else
-        created_at > 14.days.ago
-      end
+    def mortal?
+      !!mortality
     end
 
     def expire_at
-      !!redis_deletable? ? Time.now + 3.days : self.created_at + 14.days
+      Time.now + mortality
+    end
+    
+    def time_to_live
+      REDIS.ttl(redis_key) if mortal?
+    end
+    
+    private
+    
+    def set_mortality
+      REDIS.expireat(redis_key, expire_at.to_i) if mortal?
     end
   end
 end

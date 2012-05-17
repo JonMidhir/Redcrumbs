@@ -1,16 +1,20 @@
 require "redcrumbs/version"
 require 'redcrumbs/engine'
+require 'active_support/concern'
+require 'active_support/dependencies/autoload'
 require 'dm-core'
 
 module Redcrumbs
   
   mattr_accessor :creator_class_sym
-  mattr_accessor :creator_id
+  mattr_accessor :creator_primary_key
   mattr_accessor :target_class_sym
-  mattr_accessor :target_id
-  
+  mattr_accessor :target_primary_key
+
   mattr_accessor :store_creator_attributes
   mattr_accessor :store_target_attributes
+
+  mattr_accessor :mortality
   
   def self.setup
     yield self
@@ -54,14 +58,14 @@ module Redcrumbs
     end
     
     def crumbs_by
-      Crumb.all(:user_id => self.zid, :order => [:created_at.desc])
+      Crumb.all(:creator_id => self.zid, :order => [:created_at.desc])
     end
     
     # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
     def crumbs_as_user(opts = {})
       opts[:limit] ||= 100
-      arr = notifications_for 
-      arr += notifications_by
+      arr = crumbs_for 
+      arr += crumbs_by
       arr.all(:limit => opts[:limit])
     end
     

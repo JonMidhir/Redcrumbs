@@ -6,9 +6,9 @@ require 'dm-redis-adapter'
 ## The attribute must be indexed as with subject_type below
 
 module Redcrumbs
-  DataMapper.setup(:default, {:adapter  => "redis"})
-
   class Crumb
+    REDIS = Redis.new
+    
     include DataMapper::Resource
     include Crumb::Getters
     include Crumb::Setters
@@ -31,10 +31,9 @@ module Redcrumbs
     DataMapper.finalize
 
     before :save, :convert_user_target_ids
+    after :save, :set_mortality
 
     attr_accessor :_subject, :_creator, :_target
-
-    REDIS = Redis.new
 
     def initialize(params = {})
       self.target = params[:target] unless !params[:target]
@@ -53,10 +52,15 @@ module Redcrumbs
         new(params)
       end
     end
+    
+    def redis_key
+      "redcrumbs_crumbs:#{id}"
+    end
 
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
     def self.count
-      REDIS.scard("redcrumbs_crumbs:id:all")
+      REDIS.keys("redcrumbs_crumbs:*").size - 8
+      #REDIS.scard("redcrumbs_crumbs:id:all") << # not suitable. Still counts expired records
     end
 
     private
