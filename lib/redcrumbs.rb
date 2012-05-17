@@ -1,8 +1,11 @@
 require "redcrumbs/version"
 require 'redcrumbs/engine'
 require 'dm-core'
+require 'active_support/dependencies/autoload'
 
 module Redcrumbs
+  extend ActiveSupport::Autoload
+  
   mattr_accessor :creator_class_sym
   mattr_accessor :creator_id
   mattr_accessor :target_class_sym
@@ -10,6 +13,8 @@ module Redcrumbs
   
   mattr_accessor :store_creator_attributes
   mattr_accessor :store_target_attributes
+  
+  autoload :Options
   
   
   def self.setup
@@ -32,6 +37,7 @@ module Redcrumbs
     def redcrumbed(opts = {})
       
       cattr_accessor :fields, :store, :if, :unless
+      
       self.fields = []
       self.store = []
       self.if = []
