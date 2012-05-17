@@ -10,9 +10,9 @@ module Redcrumbs
 
   class Crumb
     include DataMapper::Resource
-    include Redcrumbs::Crumb::Getters
-    include Redcrumbs::Crumb::Setters
-    include Redcrumbs::Crumb::Expiry
+    include Crumb::Getters
+    include Crumb::Setters
+    include Crumb::Expiry
     
     DataMapper.setup(:default, {:adapter  => "redis"})
     
