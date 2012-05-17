@@ -8,7 +8,7 @@ require 'dm-redis-adapter'
 module Redcrumbs
   DataMapper.setup(:default, {:adapter  => "redis"})
 
-  class Notification
+  class Crumb
     include DataMapper::Resource
 
     property :id, Serial

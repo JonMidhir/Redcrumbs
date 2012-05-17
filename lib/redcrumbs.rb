@@ -47,11 +47,11 @@ module Redcrumbs
   
   module InstanceMethods
     def notifications_for
-      Redcrumb.all(:target_id => self.zid, :order => [:created_at.desc])
+      Crumb.all(:target_id => self.zid, :order => [:created_at.desc])
     end
     
     def notifications_by
-      Redcrumb.all(:user_id => self.zid, :order => [:created_at.desc])
+      Crumb.all(:user_id => self.zid, :order => [:created_at.desc])
     end
     
     # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
@@ -63,7 +63,7 @@ module Redcrumbs
     end
     
     def notifications
-      Redcrumb.all(:subject_type => self.class.to_s, :subject_id => self.zid)
+      Crumb.all(:subject_type => self.class.to_s, :subject_id => self.zid)
     end
     
     def is?(conditionals)
@@ -90,7 +90,7 @@ module Redcrumbs
 
     def notify_changes
       unless watched_changes.empty?
-        n = Redcrumb.build_from(self)
+        n = Crumb.build_from(self)
         n.save
       end
       yield
