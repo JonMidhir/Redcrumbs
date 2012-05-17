@@ -121,7 +121,7 @@ module Redcrumbs
 
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
     def self.count
-      REDIS.scard("notifications:id:all")
+      REDIS.scard("redcrumbs_crumbs:id:all")
     end
 
     private
