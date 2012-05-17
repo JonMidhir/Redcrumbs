@@ -10,8 +10,9 @@ module Redcrumbs
 
   class Crumb
     include DataMapper::Resource
-    include Crumb::Getters
-    include Crumb::Setters
+    include Redcrumbs::Crumb::Getters
+    include Redcrumbs::Crumb::Setters
+    include Redcrumbs::Crumb::Expiry
     
     DataMapper.setup(:default, {:adapter  => "redis"})
     
@@ -51,20 +52,6 @@ module Redcrumbs
         params.merge!({:creator => subject.creator})
         new(params)
       end
-    end
-
-    def deletable?
-      if !!user_zid && !!target_zid
-        checked? && checked_by_user_at > 3.days.ago && checked_by_target_at > 3.days.ago
-      elsif !!user_zid
-        checked? && checked_by_user_at > 3.days.ago
-      else
-        created_at > 14.days.ago
-      end
-    end
-
-    def expire_at
-      !!redis_deletable? ? Time.now + 3.days : self.created_at + 14.days
     end
 
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really

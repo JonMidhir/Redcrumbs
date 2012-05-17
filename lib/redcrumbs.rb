@@ -85,6 +85,7 @@ module Redcrumbs
        watched_changes.empty?
     end
     
+    # You can override this is method in your own models to define who the creator should be.
     def creator
       send(creator_class_sym) if respond_to?(creator_class_sym)
     end
