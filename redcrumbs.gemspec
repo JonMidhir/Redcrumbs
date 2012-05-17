@@ -17,4 +17,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
+  
+  s.add_dependency 'data_mapper', '>= 1.2.0'
+  s.add_dependency 'dm-redis-adapter', '>= 0.6.2'
 end
