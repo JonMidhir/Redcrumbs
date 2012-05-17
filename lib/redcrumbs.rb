@@ -1,5 +1,7 @@
 require "redcrumbs/version"
+require 'redcrumbs/engine'
 require 'dm-core'
+
 module Redcrumbs
   mattr_accessor :creator_class_sym
   mattr_accessor :creator_id
