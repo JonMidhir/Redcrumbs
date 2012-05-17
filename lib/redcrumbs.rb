@@ -49,23 +49,23 @@ module Redcrumbs
   end
   
   module InstanceMethods
-    def notifications_for
+    def crumbs_for
       Crumb.all(:target_id => self.zid, :order => [:created_at.desc])
     end
     
-    def notifications_by
+    def crumbs_by
       Crumb.all(:user_id => self.zid, :order => [:created_at.desc])
     end
     
     # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
-    def notifications_as_user(opts = {})
+    def crumbs_as_user(opts = {})
       opts[:limit] ||= 100
       arr = notifications_for 
       arr += notifications_by
       arr.all(:limit => opts[:limit])
     end
     
-    def notifications
+    def crumbs
       Crumb.all(:subject_type => self.class.to_s, :subject_id => self.zid)
     end
     
