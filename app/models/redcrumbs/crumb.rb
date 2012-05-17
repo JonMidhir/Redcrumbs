@@ -10,21 +10,9 @@ module Redcrumbs
 
   class Crumb
     include DataMapper::Resource
+    include Crumb::Properties
     include Crumb::Getters
-
-    property :id, Serial
-    property :subject_id, Integer, :index => true
-    property :subject_type, String, :index => true
-    property :modifications, Json, :default => "{}"
-    property :created_at, DateTime
-    property :updated_at, DateTime
-    property :stored_creator, Json
-    property :stored_target, Json
-    property :stored_subject, Json
-    property :creator_id, Integer, :index => true
-    property :target_id, Integer, :index => true
-
-    DataMapper.finalize
+    include Crumb::Setters
 
     before :save, :convert_user_target_ids
 
@@ -37,44 +25,6 @@ module Redcrumbs
       self.creator = params[:creator] unless !params[:creator]
       self.subject = params[:subject] unless !params[:subject]
       self.modifications = params[:modifications] unless !params[:modifications]
-    end
-
-    def subject=(subject)
-      self.stored_subject = subject.storeable_attributes
-      self.subject_type = subject.class.to_s
-      self.subject_id = subject.id
-    end
-
-    def creator
-      if !self.stored_creator.blank?
-        creator_class.new(self.stored_creator)
-      elsif !self.creator_id.blank?
-        self._user ||= full_creator
-      end
-    end
-
-    def creator=(creator)
-      self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)}
-    end
-
-    def full_creator
-      creator_class.where(creator_id => self.creator_id).first
-    end
-
-    def target
-      if !self.stored_target.blank?
-        target_class.new(self.stored_target)
-      elsif !self.target_id.blank?
-        self._target ||= full_target
-      end
-    end
-
-    def full_target
-      target_class.where(target_id => self.creator_id).first
-    end
-
-    def target=(target)
-      self.stored_target = target.attributes.select {|attribute| store_target_attributes.include?(attribute.to_sym)}
     end
 
     # Remember to change the respond_to? argument when moving from user/target class to dynamic with user as default
