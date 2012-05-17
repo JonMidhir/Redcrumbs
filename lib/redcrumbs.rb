@@ -1,10 +1,8 @@
 require "redcrumbs/version"
 require 'redcrumbs/engine'
 require 'dm-core'
-require 'active_support/dependencies/autoload'
 
 module Redcrumbs
-  extend ActiveSupport::Autoload
   
   mattr_accessor :creator_class_sym
   mattr_accessor :creator_id
@@ -13,9 +11,6 @@ module Redcrumbs
   
   mattr_accessor :store_creator_attributes
   mattr_accessor :store_target_attributes
-  
-  autoload :Options
-  
   
   def self.setup
     yield self
@@ -91,7 +86,7 @@ module Redcrumbs
     end
     
     def creator
-      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
+      send(creator_class_sym) if respond_to?(creator_class_sym)
     end
 
     private

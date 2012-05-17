@@ -10,6 +10,7 @@ module Redcrumbs
 
   class Crumb
     include DataMapper::Resource
+    include Crumb::Getters
 
     property :id, Serial
     property :subject_id, Integer, :index => true
@@ -38,33 +39,15 @@ module Redcrumbs
       self.modifications = params[:modifications] unless !params[:modifications]
     end
 
-    def subject
-      if !self.stored_subject.blank?
-        subject_from_storage
-      elsif subject_type && subject_id
-        self._subject ||= full_subject
-      end
-    end
-
-    def full_subject
-      subject_type.classify.constantize.find(subject_id)
-    end
-
     def subject=(subject)
       self.stored_subject = subject.storeable_attributes
       self.subject_type = subject.class.to_s
       self.subject_id = subject.id
     end
 
-    def subject_from_storage
-      new_subject = subject_type.constantize.new(self.stored_subject)
-      new_subject.id = self.stored_subject["id"] if self.stored_subject.has_key?("id")
-      new_subject
-    end
-
     def creator
       if !self.stored_creator.blank?
-        Redcrumbs.creator_class.new(self.stored_creator)
+        creator_class.new(self.stored_creator)
       elsif !self.creator_id.blank?
         self._user ||= full_creator
       end
@@ -75,23 +58,23 @@ module Redcrumbs
     end
 
     def full_creator
-      Redcrumbs.creator_class.where(Redcrumbs.creator_id => self.creator_id).first
+      creator_class.where(creator_id => self.creator_id).first
     end
 
     def target
       if !self.stored_target.blank?
-        Redcrumbs.target_class.new(self.stored_target)
+        target_class.new(self.stored_target)
       elsif !self.target_id.blank?
         self._target ||= full_target
       end
     end
 
     def full_target
-      Redcrumbs.target_class.where(Redcrumbs.target_id => self.creator_id).first
+      target_class.where(target_id => self.creator_id).first
     end
 
     def target=(target)
-      self.stored_target = target.attributes.select {|attribute| Redcrumbs.store_target_attributes.include?(attribute.to_sym)}
+      self.stored_target = target.attributes.select {|attribute| store_target_attributes.include?(attribute.to_sym)}
     end
 
     # Remember to change the respond_to? argument when moving from user/target class to dynamic with user as default
@@ -127,8 +110,8 @@ module Redcrumbs
     private
 
     def convert_user_target_ids
-      self.creator_id = creator[Redcrumbs.creator_id] unless !creator
-      self.target_id = target[Redcrumbs.target_id] unless !target
+      self.creator_id = creator[creator_id] unless !creator
+      self.target_id = target[target_id] unless !target
     end
   end
 end
