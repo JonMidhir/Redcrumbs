@@ -6,8 +6,6 @@ module Redcrumbs
       # prepare_redcrumbed_options prepares class level options that customise the behaviour of
       # redcrumbed. See documentation for a full explanation of redcrumbed options.
       def prepare_redcrumbed_options(options)
-        cattr_accessor :only, :store, :if, :unless
-        
         defaults = {
           :only => [],
           :store => []
@@ -19,10 +17,10 @@ module Redcrumbs
         options[:store] = Array(options[:store])
         
         class_inheritable_accessor :redcrumbs_options
-        self.redcrumbs_options = options.dup
+        class_inheritable_accessor :redcrumbs_callback_options
         
-        self.if = options[:if] unless options[:if]
-        self.unless = options[:unless] unless options[:unless]
+        self.redcrumbs_options = options.dup
+        self.redcrumbs_callback_options = options.dup.select {|k,v| [:if, :unless].include?(k.to_sym)}
       end
     end
   end

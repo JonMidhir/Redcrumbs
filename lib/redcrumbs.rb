@@ -55,7 +55,7 @@ module Redcrumbs
       
       prepare_redcrumbed_options(options)
       
-      around_save :notify_changes, :if => options[:if], :unless => options[:unless]
+      around_save :notify_changes, self.redcrumbs_callback_options
     end
   end
 end

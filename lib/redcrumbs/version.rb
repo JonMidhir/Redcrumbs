@@ -1,3 +1,3 @@
 module Redcrumbs
-  VERSION = "0.0.65"
+  VERSION = "0.0.9"
 end
