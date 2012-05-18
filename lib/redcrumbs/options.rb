@@ -7,15 +7,20 @@ module Redcrumbs
       # redcrumbed. See documentation for a full explanation of redcrumbed options.
       def prepare_redcrumbed_options(options)
         cattr_accessor :fields, :store, :if, :unless
-
-        self.fields = []
-        self.store = []
-        self.if = []
-        self.unless = []
-        self.fields += Array(options[:only]) unless !options[:only]
-        self.store += Array(options[:store]) unless !options[:store]
-        self.if += Array(options[:if]) unless !options[:if]
-        self.unless += Array(options[:unless]) unless !options[:unless]
+        
+        defaults = {
+          :fields => [],
+          :store => [],
+          :if => [],
+          :unless => []
+        }
+        
+        options.reverse_merge!(defaults)
+        
+        self.fields = Array(options[:only])
+        self.store = Array(options[:store])
+        self.if = options[:if]
+        self.unless = options[:unless]
       end
     end
   end
