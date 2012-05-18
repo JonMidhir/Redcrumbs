@@ -3,11 +3,11 @@ module Redcrumbs
     extend ActiveSupport::Concern
     
     def mortal?
-      !!mortality
+      !!Redcrumbs.mortality
     end
 
     def expire_at
-      Time.now + mortality
+      Time.now + Redcrumbs.mortality
     end
     
     def time_to_live

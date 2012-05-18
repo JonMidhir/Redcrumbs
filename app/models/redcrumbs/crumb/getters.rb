@@ -20,12 +20,20 @@ module Redcrumbs
       new_subject
     end
     
+    def creator_class
+      Redcrumbs.creator_class_sym.to_s.classify.constantize
+    end
+    
     def full_creator
-      creator_class.where(creator_primary_key => self.creator_id).first
+      creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+    end
+    
+    def target_class
+      Redcrumbs.target_class_sym.to_s.classify.constantize
     end
 
     def full_target
-      target_class.where(target_primary_key => self.creator_id).first
+      target_class.where(Redcrumbs.target_primary_key => self.creator_id).first
     end
   end
 end

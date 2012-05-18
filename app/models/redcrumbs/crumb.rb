@@ -1,5 +1,6 @@
 require 'dm-core'
 require 'dm-types'
+require 'dm-timestamps'
 require 'dm-redis-adapter'
 
 ## Note to self: Syntax to grab all by an attribute is - Notification.all(:subject_type => "User")
@@ -81,8 +82,8 @@ module Redcrumbs
     private
 
     def convert_user_target_ids
-      self.creator_id = creator[creator_primary_key] unless !creator
-      self.target_id = target[target_primary_key] unless !target
+      self.creator_id = creator[Redcrumbs.creator_primary_key] unless !creator
+      self.target_id = target[Redcrumbs.target_primary_key] unless !target
     end
   end
 end

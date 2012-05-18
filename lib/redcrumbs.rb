@@ -33,16 +33,9 @@ module Redcrumbs
   extend ActiveSupport::Autoload
   
   autoload :Options
+  autoload :Config
   
-  mattr_accessor :creator_class_sym
-  mattr_accessor :creator_primary_key
-  mattr_accessor :target_class_sym
-  mattr_accessor :target_primary_key
-
-  mattr_accessor :store_creator_attributes
-  mattr_accessor :store_target_attributes
-
-  mattr_accessor :mortality
+  include Config
   
   def self.setup
     yield self
@@ -52,21 +45,13 @@ module Redcrumbs
     base.extend(ClassMethods)
   end
   
-  def creator_class
-    self.creator_class_sym.to_s.classify.constantize
-  end
-  
-  def target_class
-    self.target_class_sym.to_s.classify.constantize
-  end
-  
   module ClassMethods
     def redcrumbed(options = {})
       include Options
       
       prepare_redcrumbed_options(options)
       
-      around_save :notify_changes, :if => self.if, :unless => self.unless
+      around_save :notify_changes #, :if => options[:if], :unless => options[:unless]
       
       include Redcrumbs::InstanceMethods
     end
@@ -74,11 +59,11 @@ module Redcrumbs
   
   module InstanceMethods
     def crumbs_for
-      Crumb.all(:target_id => self[target_primary_key], :order => [:created_at.desc])
+      Crumb.all(:target_id => self[Redcrumbs.target_primary_key], :order => [:created_at.desc])
     end
     
     def crumbs_by
-      Crumb.all(:creator_id => self[creator_primary_key], :order => [:created_at.desc])
+      Crumb.all(:creator_id => self[Redcrumbs.creator_primary_key], :order => [:created_at.desc])
     end
     
     # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
@@ -93,16 +78,12 @@ module Redcrumbs
       Crumb.all(:subject_type => self.class.to_s, :subject_id => self.id)
     end
     
-    def is?(conditionals)
-      eval(conditionals)
-    end
-    
     def watched_changes
-      changes.reject {|k,v| !self.class.fields.include?(k.to_sym)}
+      changes.reject {|k,v| !self.class.redcrumbs_options[:only].include?(k.to_sym)}
     end
     
     def storeable_attributes
-      attributes.reject {|k,v| !self.class.store.include?(k.to_sym)}
+      attributes.reject {|k,v| !self.class.redcrumbs_options[:store].include?(k.to_sym)}
     end
     
     def watched_changes_empty?
@@ -111,7 +92,7 @@ module Redcrumbs
     
     # You can override this is method in your own models to define who the creator should be.
     def creator
-      send(creator_class_sym) if respond_to?(creator_class_sym)
+      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
     end
 
     private
@@ -126,4 +107,4 @@ module Redcrumbs
   end
 end
 
-ActiveRecord::Base.class_eval{ include Redcrumbs }
+ActiveRecord::Base.class_eval { include Redcrumbs }
