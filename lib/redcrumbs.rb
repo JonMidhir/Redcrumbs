@@ -34,6 +34,8 @@ module Redcrumbs
   
   autoload :Options
   autoload :Config
+  autoload :Users
+  autoload :Creation
   
   include Config
   
@@ -48,61 +50,12 @@ module Redcrumbs
   module ClassMethods
     def redcrumbed(options = {})
       include Options
+      include Users
+      include Creation
       
       prepare_redcrumbed_options(options)
       
-      around_save :notify_changes #, :if => options[:if], :unless => options[:unless]
-      
-      include Redcrumbs::InstanceMethods
-    end
-  end
-  
-  module InstanceMethods
-    def crumbs_for
-      Crumb.all(:target_id => self[Redcrumbs.target_primary_key], :order => [:created_at.desc])
-    end
-    
-    def crumbs_by
-      Crumb.all(:creator_id => self[Redcrumbs.creator_primary_key], :order => [:created_at.desc])
-    end
-    
-    # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
-    def crumbs_as_user(opts = {})
-      opts[:limit] ||= 100
-      arr = crumbs_for 
-      arr += crumbs_by
-      arr.all(:limit => opts[:limit])
-    end
-    
-    def crumbs
-      Crumb.all(:subject_type => self.class.to_s, :subject_id => self.id)
-    end
-    
-    def watched_changes
-      changes.reject {|k,v| !self.class.redcrumbs_options[:only].include?(k.to_sym)}
-    end
-    
-    def storeable_attributes
-      attributes.reject {|k,v| !self.class.redcrumbs_options[:store].include?(k.to_sym)}
-    end
-    
-    def watched_changes_empty?
-       watched_changes.empty?
-    end
-    
-    # You can override this is method in your own models to define who the creator should be.
-    def creator
-      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
-    end
-
-    private
-
-    def notify_changes
-      unless watched_changes.empty?
-        n = Crumb.build_from(self)
-        n.save
-      end
-      yield
+      around_save :notify_changes, :if => options[:if], :unless => options[:unless]
     end
   end
 end
