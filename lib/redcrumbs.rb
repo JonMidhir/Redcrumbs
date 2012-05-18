@@ -1,3 +1,5 @@
+require 'active_support/concern'
+require 'active_support/dependencies/autoload'
 require "redcrumbs/version"
 require 'redcrumbs/engine'
 require 'dm-core'
@@ -27,6 +29,10 @@ require 'dm-core'
 # See the documentation for more details on how to customise and use Redcrumbs.
 
 module Redcrumbs
+  extend ActiveSupport::Concern
+  extend ActiveSupport::Autoload
+  
+  autoload :Options
   
   mattr_accessor :creator_class_sym
   mattr_accessor :creator_primary_key
@@ -55,18 +61,10 @@ module Redcrumbs
   end
   
   module ClassMethods
-    def redcrumbed(opts = {})
+    def redcrumbed(options = {})
+      include Options
       
-      cattr_accessor :fields, :store, :if, :unless
-      
-      self.fields = []
-      self.store = []
-      self.if = []
-      self.unless = []
-      self.fields += Array(opts[:only]) unless !opts[:only]
-      self.store += Array(opts[:store]) unless !opts[:store]
-      self.if += Array(opts[:if]) unless !opts[:if]
-      self.unless += Array(opts[:unless]) unless !opts[:unless]
+      prepare_redcrumbed_options(options)
       
       around_save :notify_changes, :if => self.if, :unless => self.unless
       
@@ -127,3 +125,5 @@ module Redcrumbs
     end
   end
 end
+
+ActiveRecord::Base.class_eval{ include Redcrumbs }
