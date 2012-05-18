@@ -36,10 +36,28 @@ module Redcrumbs
     attr_accessor :_subject, :_creator, :_target
 
     def initialize(params = {})
-      self.target = params[:target] unless !params[:target]
-      self.creator = params[:creator] unless !params[:creator]
-      self.subject = params[:subject] unless !params[:subject]
+      if self.subject = params[:subject]
+        self.target = self.subject.target if self.subject.respond_to?(:target)
+        self.creator = self.subject.creator if self.subject.respond_to?(:creator)
+      end
       self.modifications = params[:modifications] unless !params[:modifications]
+    end
+    
+    # These have to stay in order. Break if moved into the Concern.
+    def creator
+      if !self.stored_creator.blank?
+        creator_class.new(self.stored_creator)
+      elsif !self.creator_id.blank?
+        self._creator ||= full_creator
+      end
+    end
+    
+    def target
+      if !self.stored_target.blank?
+        target_class.new(self.stored_target)
+      elsif !self.target_id.blank?
+        self._target ||= full_target
+      end
     end
 
     # Remember to change the respond_to? argument when moving from user/target class to dynamic with user as default
@@ -47,8 +65,6 @@ module Redcrumbs
       unless subject.watched_changes.empty?
         params = {:modifications => subject.watched_changes}
         params.merge!({:subject => subject})
-        params.merge!({:target => subject.target}) if subject.respond_to?(:target)
-        params.merge!({:creator => subject.creator})
         new(params)
       end
     end
@@ -60,14 +76,13 @@ module Redcrumbs
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
     def self.count
       REDIS.keys("redcrumbs_crumbs:*").size - 8
-      #REDIS.scard("redcrumbs_crumbs:id:all") << # not suitable. Still counts expired records
     end
 
     private
 
     def convert_user_target_ids
-      self.creator_id = creator[creator_id] unless !creator
-      self.target_id = target[target_id] unless !target
+      self.creator_id = creator[creator_primary_key] unless !creator
+      self.target_id = target[target_primary_key] unless !target
     end
   end
 end
