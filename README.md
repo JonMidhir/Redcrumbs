@@ -25,3 +25,16 @@ $ rails g redcrumbs:install
 ```
 
 Done! Look in `config/initializers/redcrumbs.rb` for customisation options.
+
+## Example
+
+Start tracking a model by adding `redcrumbed` to the class:
+
+```
+class Venue < ActiveRecord::Base
+  redcrumbed :only => [:name, :latlng]
+  
+  validates :name, :presence => true
+  validates :latlng, :uniqueness => true
+end
+```
