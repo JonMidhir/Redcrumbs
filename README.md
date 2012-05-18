@@ -6,4 +6,6 @@ Redcrumbs is designed for high-traffic applications that need to track changes t
 
 User context is built in and fully customisable and this makes Redcrumbs particularly useful for reporting changes to users as they happen in your app.
 
-Redcrumbs is used for the 'News' feature in Project Zebra games but could also be used as the basis of a fast versioning system or reporting system.
+Redcrumbs is used for the 'News' feature in Project Zebra games but could also be used as the basis of a fast versioning or reporting system.
+
+For a more complete versioning system see the excellent [vestal_versions](https://github.com/laserlemon/vestal_versions) gem.
