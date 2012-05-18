@@ -16,6 +16,6 @@ Redcrumbs.setup do |config|
   # config.store_creator_attributes = [:id, :name, :email]
   #
   #
-  # Set the mortality to make crumbs automatically expire in time.
+  # Set the mortality to make crumbs automatically expire in time. Default is infinity.
   # config.mortality = 30.days
 end
