@@ -9,8 +9,11 @@ module Redcrumbs
 
   mattr_accessor :mortality
   
-  @@creator_class_sym ||= [:user]
-  @@creator_primary_key ||= [:id]
-  @@target_class_sym ||= [:user]
-  @@target_primary_key ||= [:id]
+  @@creator_class_sym ||= :user
+  @@creator_primary_key ||= 'id'
+  @@target_class_sym ||= :user
+  @@target_primary_key ||= 'id'
+  
+  @@store_creator_attributes ||= []
+  @@store_target_attributes ||= []
 end

@@ -31,7 +31,6 @@ module Redcrumbs
 
     DataMapper.finalize
 
-    before :save, :convert_user_target_ids
     after :save, :set_mortality
 
     attr_accessor :_subject, :_creator, :_target
@@ -60,13 +59,6 @@ module Redcrumbs
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
     def self.count
       REDIS.keys("redcrumbs_crumbs:*").size - 8
-    end
-
-    private
-
-    def convert_user_target_ids
-      self.creator_id = creator[Redcrumbs.creator_primary_key] unless !creator
-      self.target_id = target[Redcrumbs.target_primary_key] unless !target
     end
   end
 end

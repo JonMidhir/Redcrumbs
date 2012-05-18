@@ -9,11 +9,17 @@ module Redcrumbs
     end
 
     def creator=(creator)
-      self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)} unless !creator
+      unless !creator
+        self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)}
+        self.creator_id = creator[Redcrumbs.creator_primary_key]
+      end
     end
 
     def target=(target)
-      self.stored_target = target.attributes.select {|attribute| Redcrumbs.store_target_attributes.include?(attribute.to_sym)} unless !target
+      unless !target
+        self.stored_target = target.attributes.select {|attribute| Redcrumbs.store_target_attributes.include?(attribute.to_sym)}
+        self.target_id = target[Redcrumbs.target_primary_key]
+      end
     end
   end
 end
