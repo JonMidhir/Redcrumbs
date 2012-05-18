@@ -9,3 +9,19 @@ User context is built in and fully customisable and this makes Redcrumbs particu
 Redcrumbs is used for the 'News' feature in Project Zebra games but could also be used as the basis of a fast versioning or reporting system.
 
 For a more complete versioning system see the excellent [vestal_versions](https://github.com/laserlemon/vestal_versions) gem.
+
+## Installation
+
+In your Gemfile:
+
+```
+gem 'redcrumbs'
+```
+
+Then run the generator to create the initializer file. No migrations necessary!
+
+```
+$ rails g redcrumbs:install
+```
+
+Done! Look in `config/initializers/redcrumbs.rb` for customisation options.
