@@ -43,23 +43,6 @@ module Redcrumbs
       end
       self.modifications = params[:modifications] unless !params[:modifications]
     end
-    
-    # These have to stay in order. Break if moved into the Concern.
-    def creator
-      if !self.stored_creator.blank?
-        creator_class.new(self.stored_creator)
-      elsif !self.creator_id.blank?
-        self._creator ||= full_creator
-      end
-    end
-    
-    def target
-      if !self.stored_target.blank?
-        target_class.new(self.stored_target)
-      elsif !self.target_id.blank?
-        self._target ||= full_target
-      end
-    end
 
     # Remember to change the respond_to? argument when moving from user/target class to dynamic with user as default
     def self.build_from(subject)

@@ -20,12 +20,28 @@ module Redcrumbs
       new_subject
     end
     
+    def creator
+      if !self.stored_creator.blank?
+        creator_class.new(self.stored_creator)
+      elsif !self.creator_id.blank?
+        self._creator ||= full_creator
+      end
+    end
+    
     def creator_class
       Redcrumbs.creator_class_sym.to_s.classify.constantize
     end
     
     def full_creator
       creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+    end
+    
+    def target
+      if !self.stored_target.blank?
+        target_class.new(self.stored_target)
+      elsif !self.target_id.blank?
+        self._target ||= full_target
+      end
     end
     
     def target_class
