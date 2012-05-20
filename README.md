@@ -10,6 +10,8 @@ Redcrumbs is used for the 'News' feature in Project Zebra games but could also b
 
 For a more complete versioning system see the excellent [vestal_versions](https://github.com/laserlemon/vestal_versions) gem.
 
+Please note, this is early stage stuff. We're not using it in production just yet.
+
 ## Installation
 
 In your Gemfile:
@@ -38,3 +40,7 @@ class Venue < ActiveRecord::Base
   validates :latlng, :uniqueness => true
 end
 ```
+
+## To-do
+
+Lots of refactoring, tests and new features.
