@@ -119,6 +119,36 @@ class Venue < ActiveRecord::Base
 end
 ```
 
+## Conditional control
+
+You can pass `:if` and `:unless` options to the redcrumbed method to control when an action should be tracked in the same way you would for an ActiveRecord callback. For example:
+
+```
+class Venue < ActiveRecord::Base
+  redcrumbed :only => [:name, :latlng], :if => :has_user?
+  
+  def has_user?
+    !!user_id
+  end
+end
+```
+
+## Object storage
+
+It's not best practice but since the emphasis is on easing the load on our main database we have bent a few rules in order to reduce the calls on the database to, ideally, zero. In any given app you may be tracking several models and this results in a lot of SQL we could do without.
+
+`redcrumbed` accepts a `:store` option to which you can pass an array of attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
+
+```
+class Venue
+  redcrumbed :only => [:name, :latlng], :store => [:id, :name]
+end
+```
+
+So now if you call `crumb.subject` instead of loading the Venue from your database it will instantiate a new Venue with the same `id` and `name` attributes. You can always retrieve the original by calling `crumb.full_subject`.
+
+
+
 
 
 ## To-do
