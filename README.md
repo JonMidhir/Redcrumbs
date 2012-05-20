@@ -102,10 +102,13 @@ You can customise just what should be considered a creator or target globally ac
 ```
 class User < ActiveRecord::Base
   belongs_to :alliance
+  has_many :venues
 end
 
 class Venue < ActiveRecord::Base
   redcrumbed :only => [:name, :latlng]
+  
+  belongs_to :user
   
   validates :name, :presence => true
   validates :latlng, :uniqueness => true
