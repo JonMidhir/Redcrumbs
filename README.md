@@ -153,3 +153,7 @@ As you might expect, you can also do this for the creator and target of the crum
 ## To-do
 
 Lots of refactoring, tests and new features.
+
+### License
+
+Created by John Hope (c) 2012 for Project Zebra. Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
