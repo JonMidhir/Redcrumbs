@@ -1,6 +1,6 @@
 # Redcrumbs
 
-Fast and unobtrusive tracking of ActiveRecord models using Redis and DataMapper.
+Fast and unobtrusive activity tracking of ActiveRecord models using Redis and DataMapper.
 
 Redcrumbs is designed for high-traffic applications that need to track changes to their tables without making additional writes to the database. It is especially useful where the saved history needs to be expired over time and is not mission critical data. The emphasis is on speed rather than versatility.
 
