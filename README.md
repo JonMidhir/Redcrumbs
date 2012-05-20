@@ -97,6 +97,27 @@ Not too shabby. But crumbs can also track the user that made the change (creator
 
 ```
 
+You can customise just what should be considered a creator or target globally across your app by editing a few lines in the redcrumbs initializer. Or you can override the creator and target methods if you want class-specific control:
+
+```
+class User < ActiveRecord::Base
+  belongs_to :alliance
+end
+
+class Venue < ActiveRecord::Base
+  redcrumbed :only => [:name, :latlng]
+  
+  validates :name, :presence => true
+  validates :latlng, :uniqueness => true
+  
+  def creator
+    user.alliance
+  end
+end
+```
+
+
+
 ## To-do
 
 Lots of refactoring, tests and new features.
