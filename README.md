@@ -14,7 +14,7 @@ Please note, this is early stage stuff. We're not using it in production just ye
 
 ## Installation
 
-In your Gemfile:
+Assuming you've got Redis installed and running on your system just add this to your Gemfile:
 
 ```
 gem 'redcrumbs'
@@ -39,6 +39,29 @@ class Venue < ActiveRecord::Base
   validates :name, :presence => true
   validates :latlng, :uniqueness => true
 end
+```
+
+And that's pretty much it! Now you can do this:
+
+```
+> venue = Venue.last
+=> #<Venue id: 1, name: "Belfast City Hall" ... >
+
+> venue.update_attributes(:name => "City Hall, Belfast")
+=> #<Venue id: 1, name: "City Hall, Belfast" ... >
+
+> venue.crumbs
+=> [#<Crumb id: 34 ... >, #<Crumb id: 42 ... >, #<Crumb id: 53 ... >]
+
+> crumb = venue.crumbs.first
+=> #<Crumb id: 53 ... >
+
+> crumb.modifications
+=> {"name" => ["Belfast City Hall", "City Hall, Belfast"]}
+
+> crumb.subject
+=> #<Venue id: 1, name: "City Hall, Belfast" ... >
+
 ```
 
 ## To-do
