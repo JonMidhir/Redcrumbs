@@ -133,7 +133,7 @@ class Venue < ActiveRecord::Base
 end
 ```
 
-## Object storage
+## Attribute storage
 
 It's not best practice but since the emphasis is on easing the load on our main database we have bent a few rules in order to reduce the calls on the database to, ideally, zero. In any given app you may be tracking several models and this results in a lot of SQL we could do without.
 
@@ -147,8 +147,7 @@ end
 
 So now if you call `crumb.subject` instead of loading the Venue from your database it will instantiate a new Venue with the same `id` and `name` attributes. You can always retrieve the original by calling `crumb.full_subject`.
 
-
-
+As you might expect, you can also do this for the creator and target of the crumb. See the redcrumbs.rb initializer for how to set this as a global configuration.
 
 
 ## To-do
