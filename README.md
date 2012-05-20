@@ -53,7 +53,7 @@ And that's pretty much it! Now you can do this:
 > venue.crumbs
 => [#<Crumb id: 34 ... >, #<Crumb id: 42 ... >, #<Crumb id: 53 ... >]
 
-> crumb = venue.crumbs.first
+> crumb = venue.crumbs.last
 => #<Crumb id: 53 ... >
 
 > crumb.modifications
@@ -61,6 +61,39 @@ And that's pretty much it! Now you can do this:
 
 > crumb.subject
 => #<Venue id: 1, name: "City Hall, Belfast" ... >
+
+```
+
+Not too shabby. But crumbs can also track the user that made the change (creator), and even a secondary user affected by the change (target). By default the creator is considered to be the user associated with the object:
+
+```
+> user = User.find(2)
+=> #<User id: 2, name: "Jon" ... >
+
+> venue = user.venues.last
+=> #<Venue id: 1, name: "City Hall, Belfast", user_id: 2 ... >
+
+> venue.update_attributes(:name => "Halla na Cathrach, Bhéal Feirste")
+=> #<Venue id: 1, name: "Halla na Cathrach, Bhéal Feirste", user_id: 2 ... >
+
+> crumb = venue.crumbs.last
+=> #<Crumb id: 54 ... >
+
+> crumb.modifications
+=> {"name" => ["City Hall, Belfast", "Halla na Cathrach, Bhéal Feirste"]}
+
+> crumb.creator
+=> #<User id: 2, name: "Jon" ... >
+
+# and really cool, returns a limited (default 100) array of crumbs affecting a user in reverse order:
+> user.crumbs(:limit => 20)
+=> [#<Crumb id: 64 ... >, #<Crumb id: 53 ... >, #<Crumb id: 42 ... > ... ]
+
+# or if you just want the crumbs created by the user
+> user.crumbs_by
+
+# or affecting the user
+> user.crumbs_for
 
 ```
 
