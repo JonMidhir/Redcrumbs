@@ -7,9 +7,9 @@ Gem::Specification.new do |s|
   s.version     = Redcrumbs::VERSION
   s.authors     = ["John Hope"]
   s.email       = ["info@midhirrecords.com"]
-  s.homepage    = ""
-  s.summary     = %q{Fast and unobtrusive tracking of ActiveRecord models using DataMapper and Redis}
-  s.description = %q{Fast and unobtrusive tracking of ActiveRecord models using DataMapper and Redis}
+  s.homepage    = "https://github.com/projectzebra/Redcrumbs"
+  s.summary     = %q{Fast and unobtrusive activity tracking of ActiveRecord models using DataMapper and Redis}
+  s.description = %q{Fast and unobtrusive activity tracking of ActiveRecord models using DataMapper and Redis}
 
   s.rubyforge_project = "redcrumbs"
 
