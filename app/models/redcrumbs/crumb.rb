@@ -18,14 +18,14 @@ module Redcrumbs
     DataMapper.setup(:default, {:adapter  => "redis"})
     
     property :id, Serial
-    property :subject_id, Integer, :index => true
-    property :subject_type, String, :index => true
-    property :modifications, Json, :default => "{}"
+    property :subject_id, Integer, :index => true, :lazy => false
+    property :subject_type, String, :index => true, :lazy => false
+    property :modifications, Json, :default => "{}", :lazy => false
     property :created_at, DateTime
     property :updated_at, DateTime
-    property :stored_creator, Json
-    property :stored_target, Json
-    property :stored_subject, Json
+    property :stored_creator, Json, :lazy => false
+    property :stored_target, Json, :lazy => false
+    property :stored_subject, Json, :lazy => false
     property :creator_id, Integer, :index => true
     property :target_id, Integer, :index => true
 
