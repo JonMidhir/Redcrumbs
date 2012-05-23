@@ -16,8 +16,8 @@ module Redcrumbs
         options[:only] = Array(options[:only])
         options[:store] = Array(options[:store])
         
-        class_inheritable_accessor :redcrumbs_options
-        class_inheritable_accessor :redcrumbs_callback_options
+        class_attribute :redcrumbs_options
+        class_attribute :redcrumbs_callback_options
         
         self.redcrumbs_options = options.dup
         self.redcrumbs_callback_options = options.dup.select {|k,v| [:if, :unless].include?(k.to_sym)}
