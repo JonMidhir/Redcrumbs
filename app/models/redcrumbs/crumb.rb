@@ -43,7 +43,6 @@ module Redcrumbs
       self.modifications = params[:modifications] unless !params[:modifications]
     end
 
-    # Remember to change the respond_to? argument when moving from user/target class to dynamic with user as default
     def self.build_from(subject)
       unless subject.watched_changes.empty?
         params = {:modifications => subject.watched_changes}

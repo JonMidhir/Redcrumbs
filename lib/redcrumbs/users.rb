@@ -21,7 +21,7 @@ module Redcrumbs
         opts[:limit] ||= 100
         arr = crumbs_for 
         arr += crumbs_by
-        arr.all(:limit => opts[:limit])
+        arr.all(opts)
       end
       
       # Creator method defines who should be considered the creator when a model is updated. This
