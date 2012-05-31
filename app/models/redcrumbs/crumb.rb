@@ -30,7 +30,7 @@ module Redcrumbs
     property :target_id, Integer, :index => true
 
     DataMapper.finalize
-
+    
     after :save, :set_mortality
 
     attr_accessor :_subject, :_creator, :_target
@@ -43,12 +43,18 @@ module Redcrumbs
       self.modifications = params[:modifications] unless !params[:modifications]
     end
 
-    def self.build_from(subject)
+    def self.build_with_modifications(subject)
       unless subject.watched_changes.empty?
         params = {:modifications => subject.watched_changes}
         params.merge!({:subject => subject})
         new(params)
       end
+    end
+    
+    def set_context_from(subject)
+      self.subject = subject unless !!subject_id
+      self.target ||= self.subject.target if self.subject.respond_to?(:target)
+      self.creator ||= self.subject.creator if self.subject.respond_to?(:creator)
     end
     
     def redis_key

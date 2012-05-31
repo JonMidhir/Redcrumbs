@@ -20,11 +20,10 @@ module Redcrumbs
       end
 
       def notify_changes
-        unless watched_changes.empty?
-          n = Crumb.build_from(self)
-          n.save
-        end
+        n = Crumb.build_with_modifications(self) unless watched_changes.empty?
         yield
+        n.set_context_from(self) unless !n
+        n.save unless !n
       end
     end
   end
