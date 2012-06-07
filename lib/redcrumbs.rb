@@ -49,13 +49,15 @@ module Redcrumbs
   
   module ClassMethods
     def redcrumbed(options = {})
+      
       include Options
       include Users
       include Creation
       
       prepare_redcrumbed_options(options)
       
-      around_save :notify_changes, self.redcrumbs_callback_options
+      after_save :notify_changes
+
     end
   end
 end

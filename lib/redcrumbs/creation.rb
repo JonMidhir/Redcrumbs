@@ -8,22 +8,21 @@ module Redcrumbs
       end
 
       def watched_changes
-        changes.reject {|k,v| !self.class.redcrumbs_options[:only].include?(k.to_sym)}
+        changes.slice(*self.class.redcrumbs_options[:only])
       end
 
       def storeable_attributes
         attributes.reject {|k,v| !self.class.redcrumbs_options[:store].include?(k.to_sym)}
       end
-
-      def watched_changes_empty?
-        watched_changes.empty?
+      
+      def create_crumb
+        n = Crumb.build_with_modifications(self)
+        n.save
       end
-
+      
+      # This is called after the record is saved to store the changes on the model, including anything done in before_save validations
       def notify_changes
-        n = Crumb.build_with_modifications(self) unless watched_changes.empty?
-        yield
-        n.set_context_from(self) unless !n
-        n.save unless !n
+        create_crumb unless watched_changes.empty?
       end
     end
   end
