@@ -8,7 +8,7 @@ require 'dm-redis-adapter'
 
 module Redcrumbs
   class Crumb
-    REDIS = Redis.new
+    REDIS = Redcrumbs.redis
     
     include DataMapper::Resource
     include Crumb::Getters

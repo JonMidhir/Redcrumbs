@@ -8,6 +8,7 @@ module Redcrumbs
   mattr_accessor :store_target_attributes
 
   mattr_accessor :mortality
+  mattr_accessor :redis
   
   @@creator_class_sym ||= :user
   @@creator_primary_key ||= 'id'
@@ -16,4 +17,6 @@ module Redcrumbs
   
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
+  
+  @@redis ||= Redis.new
 end
