@@ -8,7 +8,6 @@ require 'dm-redis-adapter'
 
 module Redcrumbs
   class Crumb
-    REDIS = Redcrumbs.redis
     
     include DataMapper::Resource
     include Crumb::Getters
@@ -63,7 +62,7 @@ module Redcrumbs
 
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
     def self.count
-      REDIS.keys("redcrumbs_crumbs:*").size - 8
+      Redcrumbs.redis.keys("redcrumbs_crumbs:*").size - 8
     end
   end
 end

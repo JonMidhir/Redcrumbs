@@ -11,13 +11,13 @@ module Redcrumbs
     end
     
     def time_to_live
-      REDIS.ttl(redis_key) if mortal?
+      Redcrumbs.redis.ttl(redis_key) if mortal?
     end
     
     private
     
     def set_mortality
-      REDIS.expireat(redis_key, expire_at.to_i) if mortal?
+      Redcrumbs.redis.expireat(redis_key, expire_at.to_i) if mortal?
     end
   end
 end
