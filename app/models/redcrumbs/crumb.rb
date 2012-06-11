@@ -33,6 +33,8 @@ module Redcrumbs
     after :save, :set_mortality
 
     attr_accessor :_subject, :_creator, :_target
+    
+    Redcrumbs.redis ||= Redis.new
 
     def initialize(params = {})
       if self.subject = params[:subject]

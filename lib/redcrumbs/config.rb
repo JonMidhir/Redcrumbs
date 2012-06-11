@@ -17,6 +17,4 @@ module Redcrumbs
   
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
-  
-  @@redis ||= Redis.new
 end
