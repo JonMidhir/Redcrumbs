@@ -14,7 +14,7 @@ module Redcrumbs
     include Crumb::Setters
     include Crumb::Expiry
     
-    DataMapper.setup(:default, {:adapter  => "redis"})
+    DataMapper.setup(:default, {:adapter  => "redis", :host => Redcrumbs.redis.client.host, :port => Redcrumbs.redis.client.port, :password => Redcrumbs.redis.client.password})
     
     property :id, Serial
     property :subject_id, Integer, :index => true, :lazy => false
@@ -33,8 +33,6 @@ module Redcrumbs
     after :save, :set_mortality
 
     attr_accessor :_subject, :_creator, :_target
-    
-    Redcrumbs.redis ||= Redis.new
 
     def initialize(params = {})
       if self.subject = params[:subject]
