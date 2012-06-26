@@ -156,4 +156,4 @@ Lots of refactoring, tests and new features.
 
 ## License
 
-Created by John Hope (c) 2012 for Project Zebra. Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
+Created by John Hope ([@midhir](http://www.twitter.com/midhir)) (c) 2012 for Project Zebra ([@projectzebra](http://www.twitter.com/projectzebra)). Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
