@@ -56,7 +56,7 @@ module Redcrumbs
       
       prepare_redcrumbed_options(options)
       
-      after_save :notify_changes
+      after_save :notify_changes, self.redcrumbs_callback_options
 
     end
   end
