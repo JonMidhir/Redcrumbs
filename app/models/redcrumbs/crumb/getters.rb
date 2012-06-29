@@ -6,12 +6,12 @@ module Redcrumbs
       if !self.stored_subject.blank?
         subject_from_storage
       elsif subject_type && subject_id
-        self._subject ||= full_subject
+        full_subject
       end
     end
 
     def full_subject
-      subject_type.classify.constantize.find(subject_id)
+      self._subject ||= subject_type.classify.constantize.find(subject_id)
     end
     
     def subject_from_storage
@@ -24,7 +24,7 @@ module Redcrumbs
       if !self.stored_creator.blank?
         creator_class.new(self.stored_creator)
       elsif !self.creator_id.blank?
-        self._creator ||= full_creator
+        full_creator
       end
     end
     
@@ -33,19 +33,19 @@ module Redcrumbs
     end
     
     def full_creator
-      creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+      self._creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
     end
     
     def target
       if !self.stored_target.blank?
         target_class.new(self.stored_target)
       elsif !self.target_id.blank?
-        self._target ||= full_target
+        full_target
       end
     end
     
     def target_class
-      Redcrumbs.target_class_sym.to_s.classify.constantize
+      self._target ||= Redcrumbs.target_class_sym.to_s.classify.constantize
     end
 
     def full_target

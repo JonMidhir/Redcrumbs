@@ -36,8 +36,8 @@ module Redcrumbs
 
     def initialize(params = {})
       if self.subject = params[:subject]
-        self.target = self.subject.target if self.subject.respond_to?(:target)
-        self.creator = self.subject.creator if self.subject.respond_to?(:creator)
+        self.target = self.full_subject.target if self.subject.respond_to?(:target)
+        self.creator = self.full_subject.creator if self.subject.respond_to?(:creator)
       end
       self.modifications = params[:modifications] unless !params[:modifications]
     end
