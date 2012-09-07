@@ -49,7 +49,7 @@ module Redcrumbs
     end
 
     def full_target
-      target_class.where(Redcrumbs.target_primary_key => self.creator_id).first
+      target_class.where(Redcrumbs.target_primary_key => self.target_id).first
     end
   end
 end
