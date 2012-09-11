@@ -139,7 +139,7 @@ It's not best practice but since the emphasis is on easing the load on our main 
 
 #### Versions 0.3.0+
 
-`redcrumbed` accepts a `:store` option to which you can pass a hash of options similar to that of the ActiveRecord self.as_json method. These are attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
+`redcrumbed` accepts a `:store` option to which you can pass a hash of options similar to that of the ActiveRecord `as_json` method. These are attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
 
 Examples:
 
