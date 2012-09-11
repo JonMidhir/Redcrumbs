@@ -4,7 +4,7 @@ module Redcrumbs
     
     def subject=(subject)
       self._subject = subject
-      self.stored_subject = subject.storeable_attributes
+      self.stored_subject = subject.storeable_attributes_and_method_attributes
       self.subject_type = subject.class.to_s
       self.subject_id = subject.id
     end
