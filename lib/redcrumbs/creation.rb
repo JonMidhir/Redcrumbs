@@ -28,7 +28,7 @@ module Redcrumbs
           # get the methods that actually exist on the model
           methods = methods_from_array(store[:methods])
           # inject them into a hash with their outcomes as values
-          methods.inject({}) {|h,a| h.merge(a => venue.send(a))}
+          methods.inject({}) {|h,a| h.merge(a => send(a))}
         else
           {}
         end
