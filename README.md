@@ -137,7 +137,7 @@ end
 
 It's not best practice but since the emphasis is on easing the load on our main database we have bent a few rules in order to reduce the calls on the database to, ideally, zero. In any given app you may be tracking several models and this results in a lot of SQL we could do without.
 
-#### Versions 0.3.0+
+#### Versions >= 0.3.0
 
 `redcrumbed` accepts a `:store` option to which you can pass a hash of options similar to that of the ActiveRecord `as_json` method. These are attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
 
@@ -161,7 +161,7 @@ class Venue
 end
 ```
 
-#### Versions prior to 0.3.0
+#### Versions  < 0.3.0
 
 `redcrumbed` accepts a `:store` option to which you can pass an array of attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
 
