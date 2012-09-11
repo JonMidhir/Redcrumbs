@@ -7,12 +7,12 @@ module Redcrumbs
     module InstanceMethods
       # Retrieves crumbs related to the user
       def crumbs_for
-        Crumb.all(:target_id => self[Redcrumbs.target_primary_key], :order => [:created_at.desc])
+        crumb_or_custom_class.all(:target_id => self[Redcrumbs.target_primary_key], :order => [:created_at.desc])
       end
 
       # Retrieves crumbs created by the user
       def crumbs_by
-        Crumb.all(:creator_id => self[Redcrumbs.creator_primary_key], :order => [:created_at.desc])
+        crumb_or_custom_class.all(:creator_id => self[Redcrumbs.creator_primary_key], :order => [:created_at.desc])
       end
       
       # A limitable collection of both crumbs_for and crumbs_by
@@ -29,6 +29,16 @@ module Redcrumbs
       # to the current user (or creator class) associated with the model.
       def creator
         send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
+      end
+      
+      private
+      
+      def crumb_or_custom_class
+         if self.class.redcrumbs_options[:class_name]
+           self.class.redcrumbs_options[:class_name].to_s.capitalize.constantize
+         else
+           Crumb
+         end
       end
     end
   end
