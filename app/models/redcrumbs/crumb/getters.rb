@@ -34,7 +34,7 @@ module Redcrumbs
     
     def initialize_creator_from_hash_of_attributes
       self._creator ||= creator_class.new(self.stored_creator.reject {|attribute| [:id].include?(attribute.to_sym)})
-      self._creator.id = self.stored_creator["id"]
+      self._creator.id = self.stored_creator["id"] if self.stored_creator.has_key?("id")
       self._creator
     end
     
@@ -52,7 +52,7 @@ module Redcrumbs
     
     def initialize_target_from_hash_of_attributes
       self._target ||= target_class.new(self.stored_target.reject {|attribute| [:id].include?(attribute.to_sym)})
-      self._target.id = self.stored_target["id"]
+      self._target.id = self.stored_target["id"] if self.stored_target.has_key?("id")
       self._target
     end
     
