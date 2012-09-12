@@ -22,7 +22,7 @@ module Redcrumbs
     
     def creator
       if !self.stored_creator.blank?
-        creator_class.new(self.stored_creator)
+        initialize_creator_from_hash_of_attributes
       elsif !self.creator_id.blank?
         full_creator
       end
@@ -32,16 +32,28 @@ module Redcrumbs
       Redcrumbs.creator_class_sym.to_s.classify.constantize
     end
     
+    def initialize_creator_from_hash_of_attributes
+      self._creator ||= creator_class.new(self.stored_creator.reject {|attribute| [:id].include?(attribute.to_sym)})
+      self._creator.id = self.stored_creator["id"]
+      self._creator
+    end
+    
     def full_creator
       self._creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
     end
     
     def target
       if !self.stored_target.blank?
-        target_class.new(self.stored_target)
+        initialize_target_from_hash_of_attributes
       elsif !self.target_id.blank?
         full_target
       end
+    end
+    
+    def initialize_target_from_hash_of_attributes
+      self._target ||= target_class.new(self.stored_target.reject {|attribute| [:id].include?(attribute.to_sym)})
+      self._target.id = self.stored_target["id"]
+      self._target
     end
     
     def target_class
