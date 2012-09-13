@@ -11,13 +11,17 @@ module Redcrumbs
     end
 
     def full_subject
-      self._subject ||= subject_type.classify.constantize.find(subject_id)
+      if self._subject.blank? || self._subject.new_record?
+        self._subject = subject_type.classify.constantize.find(subject_id)
+      else
+        self._subject
+      end
     end
     
     def subject_from_storage
-      new_subject = subject_type.constantize.new(self.stored_subject)
-      new_subject.id = self.stored_subject["id"] if self.stored_subject.has_key?("id")
-      new_subject
+      self._subject ||= new_subject = subject_type.constantize.new(self.stored_subject.reject {|attribute| [:id].include?(attribute.to_sym)})
+      self._subject.id ||= self.stored_subject["id"] if self._subject.has_attribute?(:id) && self.stored_subject.has_key?("id")
+      self._subject
     end
     
     def creator
@@ -38,8 +42,13 @@ module Redcrumbs
       self._creator
     end
     
-    def full_creator
-      self._creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+    # grabbing full creator/target should cache the result. Check to see is it a new_record (i.e. from storage) first
+    def full_creator 
+      if self._creator.blank? || self._creator.new_record?
+        self._creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+      else
+        self._creator
+      end
     end
     
     def target
@@ -61,7 +70,11 @@ module Redcrumbs
     end
 
     def full_target
-      target_class.where(Redcrumbs.target_primary_key => self.target_id).first
+      if self._target.blank? || self._target.new_record?
+        self._target = target_class.where(Redcrumbs.target_primary_key => self.target_id).first
+      else
+        self._target
+      end
     end
   end
 end
