@@ -19,9 +19,7 @@ module Redcrumbs
     end
     
     def subject_from_storage
-      self._subject ||= new_subject = subject_type.constantize.new(self.stored_subject.reject {|attribute| [:id].include?(attribute.to_sym)})
-      self._subject.id ||= self.stored_subject["id"] if self._subject.has_attribute?(:id) && self.stored_subject.has_key?("id")
-      self._subject
+      self._subject ||= subject_type.constantize.new(self.stored_subject, :without_protection => true)
     end
     
     def creator
@@ -37,9 +35,7 @@ module Redcrumbs
     end
     
     def initialize_creator_from_hash_of_attributes
-      self._creator ||= creator_class.new(self.stored_creator.reject {|attribute| [:id].include?(attribute.to_sym)})
-      self._creator.id ||= self.stored_creator["id"] if self._creator.has_attribute?(:id) && self.stored_creator.has_key?("id")
-      self._creator
+      self._creator ||= creator_class.new(self.stored_creator, :without_protection => true)
     end
     
     # grabbing full creator/target should cache the result. Check to see is it a new_record (i.e. from storage) first
@@ -60,9 +56,7 @@ module Redcrumbs
     end
     
     def initialize_target_from_hash_of_attributes
-      self._target ||= target_class.new(self.stored_target.reject {|attribute| [:id].include?(attribute.to_sym)})
-      self._target.id ||= self.stored_target["id"] if self._target.has_attribute?(:id) && self.stored_target.has_key?("id")
-      self._target
+      self._target ||= target_class.new(self.stored_target, :without_protection => true)
     end
     
     def target_class
