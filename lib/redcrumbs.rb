@@ -37,7 +37,7 @@ module Redcrumbs
   autoload :Users
   autoload :Creation
   
-  include Config
+  include RbConfig
   
   def self.setup
     yield self

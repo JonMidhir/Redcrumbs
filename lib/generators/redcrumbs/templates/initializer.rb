@@ -14,6 +14,7 @@ Redcrumbs.setup do |config|
   # sensible and evaluate whether the additional space used in Redis is really worth the time saving.
   #
   # config.store_creator_attributes = [:id, :name, :email]
+  # config.store_target_attributes = [:id, :name, :email]
   #
   #
   # Set the mortality to make crumbs automatically expire in time. Default is infinity.
