@@ -20,3 +20,15 @@ Redcrumbs.setup do |config|
   # Set the mortality to make crumbs automatically expire in time. Default is infinity.
   # config.mortality = 30.days
 end
+
+# Point this to your redis connection. It can be a Redis object or a string.
+Redcrumbs.redis = 'localhost:6379'
+
+# You may want to create a config/redcrumbs.yml file and base your redis setting
+# from that. e.g. (thanks to Resque for this):
+
+# rails_root = ENV['RAILS_ROOT'] || File.dirname(__FILE__) + '/../..'
+# rails_env = ENV['RAILS_ENV'] || 'development'
+# 
+# redcrumbs_config = YAML.load_file(rails_root + '/config/redcrumbs.yml')
+# Redcrumbs.redis = redcrumbs_config[rails_env]
