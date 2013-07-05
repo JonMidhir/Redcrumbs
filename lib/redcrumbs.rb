@@ -2,6 +2,9 @@ require 'active_support/concern'
 require 'active_support/dependencies/autoload'
 require "redcrumbs/version"
 require 'redcrumbs/engine'
+require 'redcrumbs/config'
+require 'redis'
+require 'redis-namespace'
 require 'dm-core'
 
 # Redcrumbs implements dirty models to track changes to ActiveRecord models in a way that is fast and
@@ -33,11 +36,8 @@ module Redcrumbs
   extend ActiveSupport::Autoload
   
   autoload :Options
-  autoload :Config
   autoload :Users
   autoload :Creation
-  
-  include RbConfig
   
   def self.setup
     yield self

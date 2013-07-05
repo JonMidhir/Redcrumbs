@@ -9,12 +9,12 @@ module Redcrumbs
 
   mattr_accessor :mortality
   mattr_accessor :redis
-  
+
   @@creator_class_sym ||= :user
   @@creator_primary_key ||= 'id'
   @@target_class_sym ||= :user
   @@target_primary_key ||= 'id'
-  
+
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
   
@@ -26,7 +26,7 @@ module Redcrumbs
   #   4. A Redis URL String 'redis://host:port'
   #   5. An instance of `Redis`, `Redis::Client`, `Redis::DistRedis`,
   #      or `Redis::Namespace`.
-  def redis=(server)
+  def self.redis=(server)
     case server
     when String
       if server =~ /redis\:\/\//
@@ -39,18 +39,18 @@ module Redcrumbs
       end
       namespace ||= :redcrumbs
 
-      @redis = Redis::Namespace.new(namespace, :redis => redis)
+      @@redis = Redis::Namespace.new(namespace, :redis => redis)
     when Redis::Namespace
-      @redis = server
+      @@redis = server
     else
-      @redis = Redis::Namespace.new(:redcrumbs, :redis => server)
+      @@redis = Redis::Namespace.new(:redcrumbs, :redis => server)
     end
-    @redis
+    @@redis
   end
-  
-  def redis
-    return @redis if @redis
-    self.redis = Redis.respond_to?(:connect) ? Redis.connect : "localhost:6379"
-    self.redis
+
+  def self.redis
+    return @@redis if @@redis
+    @@redis = Redis.respond_to?(:connect) ? Redis.connect : "localhost:6379"
+    @@redis
   end
 end

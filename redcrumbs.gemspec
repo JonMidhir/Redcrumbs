@@ -19,5 +19,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_dependency 'data_mapper', '>= 1.2.0'
+  s.add_dependency 'redis', '>= 2.2.2'
   s.add_dependency 'dm-redis-adapter', '>= 0.6.2'
+  s.add_dependency 'redis-namespace', '>= 1.3.0'
 end
