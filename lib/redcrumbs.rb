@@ -1,5 +1,6 @@
 require 'active_support/concern'
 require 'active_support/dependencies/autoload'
+require 'active_record'
 require "redcrumbs/version"
 require 'redcrumbs/engine'
 require 'redcrumbs/config'
