@@ -7,7 +7,7 @@ module Redcrumbs
       # redcrumbed. See documentation for a full explanation of redcrumbed options.
       def prepare_redcrumbed_options(options)
         options.symbolize_keys!
-        
+
         defaults = {
           :only => [],
           :store => {}
@@ -26,7 +26,7 @@ module Redcrumbs
       end
 
       def redcrumbs_callback_options
-        redcrumbs_options.dup.select {|k,v| [:if, :unless].include?(k.to_sym)}
+        redcrumbs_options.slice(:if, :unless)
       end
     end
   end

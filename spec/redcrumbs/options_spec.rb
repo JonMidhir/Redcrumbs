@@ -15,6 +15,18 @@ describe Redcrumbs::Options do
     it 'has symbolized keys for callback options' do
       expect(Game.redcrumbs_callback_options.keys).to eq([:if, :unless])
     end
+
+    it 'has symbolized callback method name for :if option' do
+      expect(Game.redcrumbs_callback_options[:if]).to eq(:new_record?)
+    end
+
+    it 'has symbolized callback method name for :unless option' do
+      expect(Game.redcrumbs_callback_options[:unless]).to eq(:persisted?)
+    end
+
+    it 'has ignored options that are not valid callback conditionals' do
+      expect(Game.redcrumbs_callback_options[:store]).to be_nil
+    end
   end
 
   context 'default configuration options' do
