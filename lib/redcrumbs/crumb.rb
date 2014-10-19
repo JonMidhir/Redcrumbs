@@ -29,57 +29,63 @@ module Redcrumbs
     
     after :save, :set_mortality
 
-    attr_accessor :_subject, :_creator, :_target
-
     def initialize(params = {})
-      if params[:subject] && self.subject = params[:subject]
-        self.target = self.full_subject.target if self.subject.respond_to?(:target)
-        self.creator = self.full_subject.creator if self.subject.respond_to?(:creator)
-      end
-
-      self.modifications = params[:modifications] unless !params[:modifications]
+      self.subject = params[:subject]
+      self.modifications = params[:modifications]
     end
 
     def self.build_with_modifications(subject)
-      unless subject.watched_changes.empty?
-        params = {:modifications => subject.watched_changes}
-        params.merge!({:subject => subject})
-        new(params)
-      end
-    end
-    
-    def set_context_from(subject)
-      self.subject = subject unless !!subject_id
-      self.target ||= self.subject.target if self.subject.respond_to?(:target)
-      self.creator ||= self.subject.creator if self.subject.respond_to?(:creator)
+      return if subject.watched_changes.empty?
+
+      new(:modifications => subject.watched_changes, :subject => subject)
     end
 
-    # Getters
+    def subject=(subject)
+      return nil unless subject
+
+      @subject = subject
+      self.stored_subject = subject.storeable_attributes_and_method_attributes
+      self.subject_type = subject.class.to_s
+      self.subject_id = subject.id
+
+      self.target  = subject.target  if subject.respond_to?(:target)
+      self.creator = subject.creator if subject.respond_to?(:creator)
+
+      subject
+    end
 
     def subject
-      if !self.stored_subject.blank?
-        subject_from_storage
-      elsif subject_type && subject_id
+      if self.stored_subject.present?
+        load_subject_from_storage
+      elsif subject_type and subject_id
         full_subject
       end
     end
 
     def full_subject
-      if self._subject.blank? || self._subject.new_record?
-        self._subject = subject_type.classify.constantize.find(subject_id)
+      if @subject.blank? or @subject.new_record?
+        @subject = subject_type.classify.constantize.find(subject_id)
       else
-        self._subject
+        @subject
       end
     end
     
-    def subject_from_storage
-      self._subject ||= subject_type.constantize.new(self.stored_subject, :without_protection => true)
+    def load_subject_from_storage
+      @subject ||= subject_type.constantize.new(self.stored_subject, :without_protection => true)
+    end
+
+    def creator=(creator)
+      return unless creator
+
+      @creator = creator
+      self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)}
+      self.creator_id = creator[Redcrumbs.creator_primary_key]
     end
     
     def creator
-      if !self.stored_creator.blank?
-        initialize_creator_from_hash_of_attributes
-      elsif !self.creator_id.blank?
+      if self.stored_creator.present?
+        load_creator_from_storage
+      elsif self.creator_id.present?
         full_creator
       end
     end
@@ -88,70 +94,51 @@ module Redcrumbs
       Redcrumbs.creator_class_sym.to_s.classify.constantize
     end
     
-    def initialize_creator_from_hash_of_attributes
-      self._creator ||= creator_class.new(self.stored_creator, :without_protection => true)
+    def load_creator_from_storage
+      @creator ||= creator_class.new(self.stored_creator, :without_protection => true)
     end
     
-    # grabbing full creator/target should cache the result. Check to see is it a new_record (i.e. from storage) first
-    def full_creator 
-      if self._creator.blank? || self._creator.new_record?
-        self._creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+    # grabbing full creator/target should memoize the result. Check to see is it a new_record (i.e. from storage) first
+    def full_creator
+      if @creator.blank? or @creator.new_record?
+        @creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
       else
-        self._creator
-      end
-    end
-    
-    def target
-      if !self.stored_target.blank?
-        initialize_target_from_hash_of_attributes
-      elsif !self.target_id.blank?
-        full_target
-      end
-    end
-    
-    def initialize_target_from_hash_of_attributes
-      self._target ||= target_class.new(self.stored_target, :without_protection => true)
-    end
-    
-    def target_class
-      self._target ||= Redcrumbs.target_class_sym.to_s.classify.constantize
-    end
-
-    def full_target
-      if self._target.blank? || self._target.new_record?
-        self._target = target_class.where(Redcrumbs.target_primary_key => self.target_id).first
-      else
-        self._target
-      end
-    end
-
-
-    # Setters
-
-    def subject=(subject)
-      self._subject = subject
-      self.stored_subject = subject.storeable_attributes_and_method_attributes
-      self.subject_type = subject.class.to_s
-      self.subject_id = subject.id
-    end
-
-    def creator=(creator)
-      unless !creator
-        self._creator = creator
-        self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)}
-        self.creator_id = creator[Redcrumbs.creator_primary_key]
+        @creator
       end
     end
 
     def target=(target)
-      unless !target
-        self._target = target
-        self.stored_target = target.attributes.select {|attribute| Redcrumbs.store_target_attributes.include?(attribute.to_sym)}
-        self.target_id = target[Redcrumbs.target_primary_key]
+      return unless target
+
+      @target = target
+      self.stored_target = target.attributes.select {|attribute| Redcrumbs.store_target_attributes.include?(attribute.to_sym)}
+      self.target_id = target[Redcrumbs.target_primary_key]
+    end
+    
+    def target
+      if self.stored_target.present?
+        load_target_from_storage
+      elsif self.target_id.present?
+        full_target
+      end
+    end
+    
+    def load_target_from_storage
+      @target ||= target_class.new(self.stored_target, :without_protection => true)
+    end
+    
+    def target_class
+      Redcrumbs.target_class_sym.to_s.classify.constantize
+    end
+
+    def full_target
+      if @target.blank? or @target.new_record?
+        @target = target_class.where(Redcrumbs.target_primary_key => self.target_id).first
+      else
+        @target
       end
     end
 
-    
     def redis_key
       "redcrumbs_crumbs:#{id}"
     end
@@ -160,7 +147,6 @@ module Redcrumbs
     def self.count
       Redcrumbs.redis.keys("redcrumbs_crumbs:*").size - 8
     end
-
 
     # Expiry
 
