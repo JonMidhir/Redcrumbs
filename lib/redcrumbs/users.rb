@@ -18,7 +18,7 @@ module Redcrumbs
     # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
     def crumbs_as_user(opts = {})
       opts[:limit] ||= 100
-      arr = crumbs_for 
+      arr = crumbs_for
       arr += crumbs_by
       arr.all(opts)
     end
