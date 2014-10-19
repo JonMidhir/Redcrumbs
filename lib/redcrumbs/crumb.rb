@@ -151,21 +151,25 @@ module Redcrumbs
     # Expiry
 
     def mortal?
-      !!Redcrumbs.mortality
-    end
-
-    def expire_at
-      Time.now + Redcrumbs.mortality
+      !!time_to_live
     end
     
     def time_to_live
-      Redcrumbs.redis.ttl(redis_key) if mortal?
+      @ttl ||= Redcrumbs.redis.ttl(redis_key)
+    end
+
+    def expires_at
+      Time.now + time_to_live
     end
     
     private
     
     def set_mortality
-      Redcrumbs.redis.expireat(redis_key, expire_at.to_i) if mortal?
+      Redcrumbs.redis.expireat(redis_key, expire_from_now.to_i) if Redcrumbs.mortality
+    end
+
+    def expire_from_now
+      Time.now + Redcrumbs.mortality
     end
   end
 end

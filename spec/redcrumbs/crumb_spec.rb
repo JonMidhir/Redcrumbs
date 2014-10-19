@@ -72,4 +72,30 @@ describe Redcrumbs::Crumb do
 
     expect(crumb.redis_key).to eq('redcrumbs_crumbs:4')
   end
+
+  # Mortality
+  context 'With mortality set globally' do
+    before do
+      Redcrumbs.mortality = 30.days
+
+      game.update(name: 'News Distribution Expert')
+      @crumb = game.crumbs.last
+    end
+
+    after do
+      Redcrumbs.mortality = nil
+    end
+
+    it 'sets the mortality according to global setting' do
+      expect(@crumb.mortal?).to eq(true)
+    end
+
+    it 'returns the correct ttl' do
+      expect(@crumb.time_to_live).to be_truthy
+    end
+
+    it 'returns the correct expires_at' do
+      expect(@crumb.expires_at.to_i).to eq((Time.now + @crumb.time_to_live).to_i)
+    end
+  end
 end
