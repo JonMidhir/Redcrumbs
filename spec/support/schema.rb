@@ -10,9 +10,10 @@ class CreateSchema < ActiveRecord::Migration
       t.timestamps
     end
 
-    create_table :venues, :force => true do |t|
+    create_table :games, :force => true do |t|
+      t.references :creator
       t.string :name
-      t.string :city
+      t.integer :highscore
       t.timestamps
     end
   end

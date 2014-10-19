@@ -188,6 +188,11 @@ As you might expect, you can also do this for the creator and target of the crum
 
 Lots of refactoring, tests and new features.
 
+## Testing
+
+Running tests requires a redis server to be running on the local machine with access over port 6379.
+Run tests with `rspec`.
+
 ## License
 
 Created by John Hope ([@midhir](http://www.twitter.com/midhir)) (c) 2012 for Project Zebra ([@projectzebra](http://www.twitter.com/projectzebra)). Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
