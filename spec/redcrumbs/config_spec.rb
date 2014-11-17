@@ -73,5 +73,39 @@ describe Redcrumbs do
     it 'defaults to empty array for store_target_attributes' do
       expect(Redcrumbs.store_target_attributes).to eq([:id, :name])
     end
+
+    it 'initializes redis client from URL string' do
+      Redcrumbs.redis = 'redis://localhost:6379'
+      expect(Redcrumbs.redis.namespace).to eq(:redcrumbs)
+      expect(Redcrumbs.redis.client.host).to eq('localhost')
+      expect(Redcrumbs.redis.client.port).to eq(6379)
+    end
+
+    it 'initializes redis client from URL string without scheme' do
+      Redcrumbs.redis = 'localhost:6379'
+      expect(Redcrumbs.redis.namespace).to eq(:redcrumbs)
+      expect(Redcrumbs.redis.client.host).to eq('localhost')
+      expect(Redcrumbs.redis.client.port).to eq(6379)
+    end
+
+    it 'initializes redis client from URL string with namespace' do
+      Redcrumbs.redis = 'localhost:6379/some_namespace'
+
+      expect(Redcrumbs.redis.namespace).to eq('some_namespace')
+    end
+
+    it 'uses existing redis client when assigned' do
+      redis = Redis.new
+      Redcrumbs.redis = redis
+
+      expect(Redcrumbs.redis.redis).to be(redis)
+    end
+
+    it 'uses existing client namespace when assigned' do
+      redis = Redis::Namespace.new('some_namespace')
+      Redcrumbs.redis = redis
+      
+      expect(Redcrumbs.redis).to be(redis)
+    end
   end
 end
