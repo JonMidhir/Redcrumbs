@@ -3,9 +3,14 @@ require 'spec_helper'
 describe Redcrumbs::Options do
   context 'with explicit configuration' do
     let(:options){ {'only' => [:id, :name], :store => {:only =>[:id, :name]}, :if => :new_record?, :unless => :persisted?} }
-
+    let(:default_options) { Game.redcrumbs_options.dup }
+    
     before do
       Game.prepare_redcrumbed_options(options)
+    end
+
+    after do
+      Game.prepare_redcrumbed_options(default_options)
     end
 
     it 'has symbolized keys' do

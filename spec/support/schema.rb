@@ -13,6 +13,7 @@ class CreateSchema < ActiveRecord::Migration
     create_table :games, :force => true do |t|
       t.references :creator
       t.string :name
+      t.string :platform
       t.integer :highscore
       t.timestamps
     end
