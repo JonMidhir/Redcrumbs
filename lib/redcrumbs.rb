@@ -1,7 +1,7 @@
 require 'active_support/concern'
 require 'active_support/dependencies/autoload'
-require "redcrumbs/version"
-require 'redcrumbs/engine'
+require 'active_record'
+require 'redcrumbs/version'
 require 'redcrumbs/config'
 require 'redis'
 require 'redis-namespace'
@@ -38,6 +38,7 @@ module Redcrumbs
   autoload :Options
   autoload :Users
   autoload :Creation
+  autoload :Crumb
   
   def self.setup
     yield self
