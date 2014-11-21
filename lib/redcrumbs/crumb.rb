@@ -74,34 +74,51 @@ module Redcrumbs
       @subject ||= subject_type.constantize.new(self.stored_subject, :without_protection => true)
     end
 
-    def creator=(creator)
-      return unless creator
 
+    # Assign additional creator attributes when changing the creator
+    #
+    def creator=(creator)
       @creator = creator
-      self.stored_creator = creator.attributes.select {|attribute| Redcrumbs.store_creator_attributes.include?(attribute.to_sym)}
-      self.creator_id = creator[Redcrumbs.creator_primary_key]
+
+      store_creator_attributes and assign_creator_id
     end
     
     def creator
-      if self.stored_creator.present?
-        load_creator_from_storage
-      elsif self.creator_id.present?
-        full_creator
-      end
+      @creator or creator_from_storage or full_creator
     end
     
     def creator_class
       Redcrumbs.creator_class_sym.to_s.classify.constantize
     end
+
+    def creator_primary_key
+      Redcrumbs.creator_primary_key
+    end
+
+    def store_creator_attributes
+      self.stored_creator = if @creator
+        @creator.attributes.select {|k,v| Redcrumbs.store_creator_attributes.include?(k.to_sym)}
+      else
+        {}
+      end
+    end
+
+    def assign_creator_id
+      self.creator_id = @creator ? @creator[creator_primary_key] : nil
+    end
     
-    def load_creator_from_storage
-      @creator ||= creator_class.new(self.stored_creator, :without_protection => true)
+    def creator_from_storage
+      if self.stored_creator.present?
+        @creator_from_storage ||= creator_class.new(self.stored_creator, :without_protection => true)
+      end
     end
     
     # grabbing full creator/target should memoize the result. Check to see is it a new_record (i.e. from storage) first
     def full_creator
+      return nil unless creator_id
+
       if @creator.blank? or @creator.new_record?
-        @creator = creator_class.where(Redcrumbs.creator_primary_key => self.creator_id).first
+        @creator = creator_class.where(creator_primary_key => self.creator_id).first
       else
         @creator
       end
