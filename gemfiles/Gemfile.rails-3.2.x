@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'activerecord', '~> 4.0'
-gem 'activesupport', '~> 4.0'
+gem 'activerecord', '~> 3.2'
+gem 'activesupport', '~> 3.2'
 
 gemspec :path => '..'
 
