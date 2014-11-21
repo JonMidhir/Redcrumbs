@@ -1,13 +1,8 @@
 require 'spec_helper.rb'
 
 describe Redcrumbs::Crumb do
-  def user
-    @user ||= User.create(:name => 'Jon Hope')
-  end
-
-  let(:game) do 
-    Game.create(:name => 'Paperboy', :highscore => 3943, :creator => user)
-  end
+  let(:user) { User.create(:name => 'Jon Hope') }
+  let(:game) { Game.create(:name => 'Paperboy', :highscore => 3943, :creator => user) }
 
   before do
     game.update_attributes(:name => 'Newspaper Delivery Person')
