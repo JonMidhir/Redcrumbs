@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/JonMidhir/Redcrumbs.svg?branch=version_5.0)](https://travis-ci.org/JonMidhir/Redcrumbs)
+[![Code Climate](https://codeclimate.com/github/JonMidhir/Redcrumbs/badges/gpa.svg)](https://codeclimate.com/github/JonMidhir/Redcrumbs)
+[![Test Coverage](https://codeclimate.com/github/JonMidhir/Redcrumbs/badges/coverage.svg)](https://codeclimate.com/github/JonMidhir/Redcrumbs)
 
 # Redcrumbs
 
