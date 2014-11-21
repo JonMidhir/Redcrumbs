@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'rails', :git => 'git://github.com/rails/rails.git'
+gem 'activerecord', '~> 4.0'
+gem 'activesupport', '~> 4.0'
 
 gemspec :path => '..'
 
