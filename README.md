@@ -1,10 +1,10 @@
+**Note: Active development is on the [version_5.0](https://github.com/JonMidhir/Redcrumbs/tree/version_5.0) branch.**
+
 # Redcrumbs
 
 Fast and unobtrusive activity tracking of ActiveRecord models using Redis and DataMapper.
 
 Redcrumbs is designed for high-traffic applications that need to track changes to their tables without making additional writes to the database. It is especially useful where the saved history needs to be expired over time and is not mission critical data. The emphasis is on reducing response times and easing the load on your main database.
-
-Note: Now compatible with Rails 3.1+ only.
 
 User context is built in and fully customisable and this makes Redcrumbs particularly useful for reporting relevant activity to users as it happens in your app.
 
