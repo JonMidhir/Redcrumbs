@@ -43,11 +43,11 @@ describe Redcrumbs::Creation do
     end
 
     after do
-      Game.prepare_redcrumbed_options(@default_options)
+      Game.redcrumbed(@default_options)
     end
 
     it 'should not create crumb if `if` unsatisfied' do
-      Game.prepare_redcrumbed_options(:only => [:name], :if => :persisted?)
+      Game.redcrumbed(:only => [:name], :if => :new_record?)
 
       game = Game.new(name: 'Paperperson')
 
@@ -55,7 +55,7 @@ describe Redcrumbs::Creation do
     end
 
     it 'should not create crumb if `unless` satisfied' do
-      Game.prepare_redcrumbed_options(:only => [:name], :unless => :new_record?)
+      Game.redcrumbed(:only => [:name], :unless => :persisted?)
 
       game = Game.new(name: 'Paperperson')
 
