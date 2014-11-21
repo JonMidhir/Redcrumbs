@@ -27,10 +27,16 @@ module Redcrumbs
     # can be overridden in the redcrumbed model to define who the creator should be. Defaults
     # to the current user (or creator class) associated with the model.
     def creator
-      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
+      super
+    rescue NoMethodError
+      default_creator
     end
     
     private
+
+    def default_creator
+      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
+    end
     
     def crumb_or_custom_class
        if self.class.redcrumbs_options[:class_name]

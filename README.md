@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/JonMidhir/Redcrumbs.svg?branch=configure_travis)](https://travis-ci.org/JonMidhir/Redcrumbs)
+
 # Redcrumbs
 
 Fast and unobtrusive activity tracking of ActiveRecord models using Redis and DataMapper.

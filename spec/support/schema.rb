@@ -1,6 +1,6 @@
 ActiveRecord::Base.establish_connection(
   :adapter  => 'sqlite3',
-  :database => File.expand_path('../../test.db', __FILE__)
+  :database => ':memory:'
 )
 
 class CreateSchema < ActiveRecord::Migration

@@ -13,26 +13,26 @@ describe Redcrumbs::Creation do
 
     it 'should create one crumb when single attribute changed' do
       expect {
-        subject.update(:highscore => 12935)
+        subject.update_attributes(:highscore => 12935)
       }.to change { subject.crumbs.count }.by(1)
     end
 
     it 'should create one crumb when multiple attributes changed' do
       expect {
-        subject.update(:highscore => 12935, :name => 'Paperboy 2')
+        subject.update_attributes(:highscore => 12935, :name => 'Paperboy 2')
       }.to change { subject.crumbs.count }.by(1)
     end
 
     it 'should create multiple crumbs with multiple updates' do
       expect {
-        subject.update(:highscore => 12935)
-        subject.update(:name => 'Paperboy 2')
+        subject.update_attributes(:highscore => 12935)
+        subject.update_attributes(:name => 'Paperboy 2')
       }.to change { subject.crumbs.count }.by(2)
     end
 
     it 'should not create crumb when no tracked attributes changed' do
       expect {
-        subject.update(:platform => 'Commodore 64')
+        subject.update_attributes(:platform => 'Commodore 64')
       }.to change { subject.crumbs.count }.by(0)
     end
   end
@@ -65,10 +65,11 @@ describe Redcrumbs::Creation do
 
   context "a created crumb's attributes" do
     let(:creator) { User.create(:name => 'Jon Hope') }
+
     subject{ Game.create(:name => name, :highscore => score, :creator => creator) }
 
     before do
-      subject.update(:highscore => 15000, :platform => 'Amiga')
+      subject.update_attributes(:highscore => 15000, :platform => 'Amiga')
     end
 
     it 'restricts columns according to :only' do
