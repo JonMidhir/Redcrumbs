@@ -5,8 +5,8 @@ describe Redcrumbs::Crumb do
   let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, :creator => creator) }
 
   before do
-    game.update(:name => 'Newspaper Delivery Person')
-    game.update(:highscore => 4001)
+    game.update_attributes(:name => 'Newspaper Delivery Person')
+    game.update_attributes(:highscore => 4001)
     @first_crumb, @second_crumb, @last_crumb = game.crumbs.to_a
   end
 
@@ -78,7 +78,7 @@ describe Redcrumbs::Crumb do
     before do
       Redcrumbs.mortality = 30.days
 
-      game.update(name: 'News Distribution Expert')
+      game.update_attributes(name: 'News Distribution Expert')
       @crumb = game.crumbs.last
     end
 
