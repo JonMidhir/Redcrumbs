@@ -68,6 +68,7 @@ describe Redcrumbs::Creation do
     subject{ Game.create(:name => name, :highscore => score, :creator => creator) }
 
     before do
+      puts subject.creator.inspect
       subject.update(:highscore => 15000, :platform => 'Amiga')
     end
 

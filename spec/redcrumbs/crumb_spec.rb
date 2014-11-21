@@ -2,7 +2,7 @@ require 'spec_helper.rb'
 
 describe Redcrumbs::Crumb do
   let(:creator){ User.create(:name => 'John') }
-  let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, creator: creator) }
+  let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, :creator => creator) }
 
   before do
     game.update(:name => 'Newspaper Delivery Person')
