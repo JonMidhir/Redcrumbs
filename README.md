@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JonMidhir/Redcrumbs.svg?branch=configure_travis)](https://travis-ci.org/JonMidhir/Redcrumbs)
+[![Build Status](https://travis-ci.org/JonMidhir/Redcrumbs.svg?branch=version_5.0)](https://travis-ci.org/JonMidhir/Redcrumbs)
 
 # Redcrumbs
 
