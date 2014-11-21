@@ -8,27 +8,39 @@ module Redcrumbs
       def serializable_association(name)
         raise ArgumentError unless name and [:creator, :target].include?(name)
 
-        # Setter, e.g. object.creator=
-        #
+        define_setter_for(name)
+        define_getter_for(name)
+        define_loader_for(name)
+      end
+
+      private
+
+      # Define a setter, e.g. object.creator=
+      #
+      def define_setter_for(name)
         define_method("#{name}=") do |associated|
           instance_variable_set("@#{name}".to_sym, associated)
 
           assign_id_for(name, associated)
           assign_serialized_attributes(name, associated)
         end
+      end
 
-        # Getter, e.g. object.creator
-        #
+
+      # Define a getter, e.g. object.creator
+      #
+      def define_getter_for(name)
         define_method("#{name}") do
           instance_variable_get("@#{name}") or
           instance_variable_set("@#{name}", deserialize(name)) or
           instance_variable_set("@#{name}", load_associated(name))
         end
+      end
 
-
-        # Force a re/load of the association from the database,
-        # overwriting any memoized version.
-        #
+      # Define method to force a re/load of the association from
+      # the database, overwriting any memoized version.
+      #
+      def define_loader_for(name)
         define_method("full_#{name}") do
           instance_variable_set("@#{name}", load_associated(name))
         end
