@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  has_many :games, foreign_key: :creator_id, inverse_of: :creator
 end
 
 class Game < ActiveRecord::Base
