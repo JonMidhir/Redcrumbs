@@ -5,7 +5,14 @@ describe Redcrumbs::Crumb do
     @user ||= User.create(:name => 'Jon Hope')
   end
 
-  let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, :creator => user) }
+  let(:game) do 
+    puts user.inspect
+    game = Game.new(:name => 'Paperboy', :highscore => 3943, :creator => user)
+    puts game.creator.inspect
+    game.save
+    puts game.creator_id
+    game
+  end
 
   before do
     game.update_attributes(:name => 'Newspaper Delivery Person')
