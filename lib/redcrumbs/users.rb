@@ -26,9 +26,9 @@ module Redcrumbs
     # Creator method defines who should be considered the creator when a model is updated. This
     # can be overridden in the redcrumbed model to define who the creator should be. Defaults
     # to the current user (or creator class) associated with the model.
-    unless method_defined? :creator
+    unless respond_to? :creator
       def creator
-        send(Redcrumbs.creator_class_sym) and respond_to?(Redcrumbs.creator_class_sym)
+        send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
       end
     end
     
