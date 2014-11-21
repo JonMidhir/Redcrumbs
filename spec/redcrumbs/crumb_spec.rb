@@ -1,8 +1,11 @@
 require 'spec_helper.rb'
 
 describe Redcrumbs::Crumb do
-  let(:creator){ User.create(:name => 'John') }
-  let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, :creator => creator) }
+  def user
+    @user ||= User.create(:name => 'Jon Hope')
+  end
+
+  let(:game){ Game.create(:name => 'Paperboy', :highscore => 3943, :creator => user) }
 
   before do
     game.update_attributes(:name => 'Newspaper Delivery Person')
@@ -29,9 +32,9 @@ describe Redcrumbs::Crumb do
   end
 
   it 'returns the creator' do
-    expect(@first_crumb.creator).to eq(creator)
-    expect(@second_crumb.creator).to eq(creator)
-    expect(@last_crumb.creator).to eq(creator)
+    expect(@first_crumb.creator).to eq(user)
+    expect(@second_crumb.creator).to eq(user)
+    expect(@last_crumb.creator).to eq(user)
   end
 
   it 'initializes with modifications' do

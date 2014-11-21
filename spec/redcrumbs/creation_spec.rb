@@ -64,11 +64,13 @@ describe Redcrumbs::Creation do
   end
 
   context "a created crumb's attributes" do
-    let(:creator) { User.create(:name => 'Jon Hope') }
-    subject{ Game.create(:name => name, :highscore => score, :creator => creator) }
+    def user
+      @user ||= User.create(:name => 'Jon Hope')
+    end
+
+    subject{ Game.create(:name => name, :highscore => score, :creator => user) }
 
     before do
-      puts creator.inspect
       subject.update_attributes(:highscore => 15000, :platform => 'Amiga')
     end
 
@@ -89,11 +91,11 @@ describe Redcrumbs::Creation do
     end
 
     it 'stores creator_id' do
-      expect(subject.crumbs.last.creator_id).to eq(creator.id)
+      expect(subject.crumbs.last.creator_id).to eq(user.id)
     end
 
     it 'stores target_id' do
-      expect(subject.crumbs.last.target_id).to eq(creator.id)
+      expect(subject.crumbs.last.target_id).to eq(user.id)
     end
   end
 end
