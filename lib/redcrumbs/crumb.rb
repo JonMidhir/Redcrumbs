@@ -13,9 +13,6 @@ module Redcrumbs
     DataMapper.setup(:default, {:adapter  => "redis", :host => Redcrumbs.redis.client.host, :port => Redcrumbs.redis.client.port, :password => Redcrumbs.redis.client.password})
     
     property :id, Serial
-    property :subject_id, Integer, :index => true, :lazy => false
-    property :subject_type, String, :index => true, :lazy => false
-    property :stored_subject, Json, :lazy => false
     property :modifications, Json, :default => "{}", :lazy => false
     property :created_at, DateTime
     property :updated_at, DateTime
@@ -24,8 +21,9 @@ module Redcrumbs
     
     after :save, :set_mortality
 
-    serializable_association(:creator)
-    serializable_association(:target)
+    serializable_association :creator
+    serializable_association :target
+    serializable_association :subject
 
     def initialize(params = {})
       self.subject = params[:subject]
@@ -38,38 +36,20 @@ module Redcrumbs
       new(:modifications => subject.watched_changes, :subject => subject)
     end
 
+    # Overrides the subject setter created by the SerializableAttributes
+    # module.
+    #
     def subject=(subject)
-      return nil unless subject
-
       @subject = subject
-      self.stored_subject = subject.storeable_attributes_and_method_attributes
-      self.subject_type = subject.class.to_s
-      self.subject_id = subject.id
+
+      self.stored_subject = subject ? serialize(:subject, subject) : {}
+      self.subject_id = subject ? subject.id : nil
+      assign_type_for(:subject, subject)
 
       self.target  = subject.target  if subject.respond_to?(:target)
       self.creator = subject.creator if subject.respond_to?(:creator)
 
       subject
-    end
-
-    def subject
-      if self.stored_subject.present?
-        load_subject_from_storage
-      elsif subject_type and subject_id
-        full_subject
-      end
-    end
-
-    def full_subject
-      if @subject.blank? or @subject.new_record?
-        @subject = subject_type.classify.constantize.find(subject_id)
-      else
-        @subject
-      end
-    end
-    
-    def load_subject_from_storage
-      @subject ||= subject_type.constantize.new(self.stored_subject, :without_protection => true)
     end
 
     def redis_key

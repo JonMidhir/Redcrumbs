@@ -5,7 +5,7 @@ module Redcrumbs
   module SerializableAssociation
     def self.included(base)
       base.extend(ClassMethods)
-      
+
       base.class_eval do
         include DataMapper::Resource unless self < DataMapper::Resource
       end
@@ -13,10 +13,11 @@ module Redcrumbs
 
     module ClassMethods
       def serializable_association(name)
-        raise ArgumentError unless name and [:creator, :target].include?(name)
+        raise ArgumentError unless name and [:creator, :target, :subject].include?(name)
 
         property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false
-        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true
+        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true, :lazy => false
+        property "#{name}_type".to_sym, DataMapper::Property::String, :index => true, :lazy => false
 
         define_setter_for(name)
         define_getter_for(name)
@@ -32,6 +33,7 @@ module Redcrumbs
           instance_variable_set("@#{name}".to_sym, associated)
 
           assign_id_for(name, associated)
+          assign_type_for(name, associated)
           assign_serialized_attributes(name, associated)
         end
       end
@@ -63,8 +65,10 @@ module Redcrumbs
     def load_associated(name)
       return nil unless association_id = send("#{name}_id")
 
-      klass = default_class_for(name)
-      primary_key = default_primary_key_for(name)
+      class_name = send("#{name}_type") || config_class_name_for(name)
+      klass = class_name.classify.constantize
+
+      primary_key = config_primary_key_for(name) || klass.primary_key
 
       klass.where(primary_key => association_id).first
     end
@@ -74,10 +78,21 @@ module Redcrumbs
     # Assign the association id based on default primary key
     #
     def assign_id_for(name, associated)
-      primary_key = default_primary_key_for(name)
-      id = associated ? associated[primary_key] : nil
+      id = if associated
+        primary_key = config_primary_key_for(name) or associated.class.primary_key
+        associated[primary_key]
+      end
 
       send("#{name}_id=", id)
+    end
+
+
+    # Assign the association type based on default primary key
+    #
+    def assign_type_for(name, associated)
+      type = associated ? associated.class.name : nil
+
+      send("#{name}_type=", type)
     end
 
 
@@ -93,26 +108,31 @@ module Redcrumbs
     # Get the class name from the config options, e.g.
     # Redcrumbs.creator_class_sym
     #
-    def default_class_for(name)
-      Redcrumbs.send("#{name}_class_sym").to_s.classify.constantize
+    def config_class_name_for(name)
+      Redcrumbs.send("#{name}_class_sym").to_s
     end
 
 
     # Get the expected primary key for the association from
     # the config options.
     #
-    def default_primary_key_for(name)
+    def config_primary_key_for(name)
       Redcrumbs.send("#{name}_primary_key")
+    rescue NoMethodError
+      nil
     end
 
-
-    # Serializes a given object using the configuration options
-    # for the association.
+    # Serializes a given object by looking for its configuration options
+    # or calling serialization method.
     #
     def serialize(name, associated)
-      keys = Redcrumbs.send("store_#{name}_attributes").dup
+      if name == :subject
+        associated.serialized_as_redcrumbs_subject
+      else
+        keys = Redcrumbs.send("store_#{name}_attributes").dup
 
-      associated.attributes.select {|k,v| keys.include?(k.to_sym)}
+        associated.attributes.select {|k,v| keys.include?(k.to_sym)}
+      end
     end
 
 
@@ -124,7 +144,15 @@ module Redcrumbs
 
       return nil unless properties.present?
 
-      default_class_for(name).new(properties, :without_protection => true)
+      class_name = send("#{name}_type")
+
+      if name == :subject
+        klass = class_name.classify.constantize
+        klass.deserialize_from_redcrumbs(properties)
+      else
+        class_name ||= config_class_name_for(name)
+        class_name.classify.constantize.new(properties, :without_protection => true)
+      end
     end
   end
 end
