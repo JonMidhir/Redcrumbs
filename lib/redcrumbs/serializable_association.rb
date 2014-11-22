@@ -1,12 +1,22 @@
+require 'dm-core'
+require 'dm-types'
+
 module Redcrumbs
   module SerializableAssociation
     def self.included(base)
       base.extend(ClassMethods)
+      
+      base.class_eval do
+        include DataMapper::Resource unless self < DataMapper::Resource
+      end
     end
 
     module ClassMethods
       def serializable_association(name)
         raise ArgumentError unless name and [:creator, :target].include?(name)
+
+        property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false
+        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true
 
         define_setter_for(name)
         define_getter_for(name)
