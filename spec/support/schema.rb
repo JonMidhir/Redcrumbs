@@ -5,13 +5,18 @@ ActiveRecord::Base.establish_connection(
 
 class CreateSchema < ActiveRecord::Migration
   def self.up
-    create_table :users, :force => true do |t|
+    create_table :computer_players, :force => true do |t|
+      t.string :name
+      t.timestamps
+    end
+
+    create_table :players, :force => true do |t|
       t.string :name
       t.timestamps
     end
 
     create_table :games, :force => true do |t|
-      t.references :creator
+      t.references :high_scorer, :polymorphic => true
       t.string :name
       t.string :platform
       t.integer :highscore
