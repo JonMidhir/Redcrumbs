@@ -1,6 +1,13 @@
 module Redcrumbs
   module Creation
     extend ActiveSupport::Concern
+
+    module ClassMethods
+      def deserialize_from_redcrumbs(attributes = {})
+        clean_attrs = attributes.select {|k,v| column_names.include?(k.to_s)}
+        new(clean_attrs, :without_protection => true)
+      end
+    end
     
     def crumbs
       Crumb.all(:subject_type => self.class.to_s, :subject_id => self.id)
@@ -10,31 +17,34 @@ module Redcrumbs
       changes.slice(*self.class.redcrumbs_options[:only])
     end
 
+    def storable_attributes_keys
+      store = self.class.redcrumbs_options[:store]
+
+      store[:only] or 
+      attributes.keys.reject {|key| store[:except].include?(k.to_sym)} or
+      []
+    end
+
     def storeable_attributes
+      slice *storable_attributes_keys
+    end
+
+    def storable_methods_names
       store = self.class.redcrumbs_options[:store]
-      if store.has_key?(:only)
-        attributes.reject {|k,v| !store[:only].include?(k.to_sym)}
-      elsif store.has_key?(:except)
-        attributes.reject {|k,v| store[:except].include?(k.to_sym)}
+
+      if store[:methods]
+        methods.select {|method| store[:methods].include?(method.to_sym)}
       else
-        {}
+        []
       end
     end
     
-    def attributes_from_storeable_methods
-      store = self.class.redcrumbs_options[:store]
-      if store.has_key?(:methods)
-        # get the methods that actually exist on the model
-        methods = methods_from_array(store[:methods])
-        # inject them into a hash with their outcomes as values
-        methods.inject({}) {|h,a| h.merge(a => send(a))}
-      else
-        {}
-      end
+    def storable_methods
+      storable_methods_names.inject({}) {|h, n| h.merge(n => send(n))}
     end
     
-    def storeable_attributes_and_method_attributes
-      storeable_attributes.merge(attributes_from_storeable_methods)
+    def serialized_as_redcrumbs_subject
+      storeable_attributes.merge(storable_methods)
     end
     
     def create_crumb
