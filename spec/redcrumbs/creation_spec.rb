@@ -64,12 +64,13 @@ describe Redcrumbs::Creation do
   end
 
   context "a created crumb's attributes" do
+    let(:computer_player) { Player.create(:name => 'Ramsey') }
     let(:player) { Player.create(:name => 'Jon Hope') }
 
-    subject{ Game.create(:name => name, :highscore => score, :high_scorer => player) }
+    subject{ Game.create(:name => name, :highscore => score, :high_scorer => computer_player) }
 
     before do
-      subject.update_attributes(:highscore => 15000, :platform => 'Amiga')
+      subject.update_attributes(:highscore => 15000, :platform => 'Amiga', :high_scorer => player)
     end
 
     it 'restricts columns according to :only' do
@@ -92,8 +93,16 @@ describe Redcrumbs::Creation do
       expect(subject.crumbs.last.creator_id).to eq(player.id)
     end
 
+    it 'stores creator_type' do
+      expect(subject.crumbs.last.creator_type).to eq(player.class.name)
+    end
+
     it 'stores target_id' do
-      expect(subject.crumbs.last.target_id).to eq(player.id)
+      expect(subject.crumbs.last.target_id).to eq(computer_player.id)
+    end
+
+    it 'stores target_type' do
+      expect(subject.crumbs.last.target_type).to eq(computer_player.class.name)
     end
   end
 end
