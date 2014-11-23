@@ -26,7 +26,7 @@ module Redcrumbs
     end
 
     def storeable_attributes
-      slice *storable_attributes_keys
+      attributes.slice *storable_attributes_keys.map(&:to_s)
     end
 
     def storable_methods_names
