@@ -10,14 +10,20 @@ module Redcrumbs
   mattr_accessor :mortality
   mattr_accessor :redis
 
+
+  # Todo: Remove the default creator/target class and allow nil
+  # This should only be used to load old crumbs from previous versions
+  # of the gem, in future require an explicit creator/target method to set.
+  #
   @@creator_class_sym ||= :user
   @@creator_primary_key ||= 'id'
-  @@target_class_sym ||= :user
+  @@target_class_sym ||= :user 
   @@target_primary_key ||= 'id'
 
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
   
+
   # Stolen from resque. Thanks!
   # Accepts:
   #   1. A 'hostname:port' String
@@ -26,6 +32,7 @@ module Redcrumbs
   #   4. A Redis URL String 'redis://host:port'
   #   5. An instance of `Redis`, `Redis::Client`, `Redis::DistRedis`,
   #      or `Redis::Namespace`.
+  #
   def self.redis=(server)
     case server
     when String

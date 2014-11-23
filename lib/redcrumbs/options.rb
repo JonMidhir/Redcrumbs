@@ -16,7 +16,6 @@ module Redcrumbs
         options.reverse_merge!(defaults)
         
         options[:only] = Array(options[:only])
-        options[:store] = options[:store]
         
         class_attribute :redcrumbs_options
         

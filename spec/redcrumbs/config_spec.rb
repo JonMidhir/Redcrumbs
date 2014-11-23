@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Redcrumbs do
   context 'default module configuration options' do
     it 'defaults to :user for creator_class_sym' do
-      expect(Redcrumbs.creator_class_sym).to eq(:user)
+      expect(Redcrumbs.creator_class_sym).to eq(:player)
     end
 
     it 'defaults to id for creator_primary_key' do
@@ -11,7 +11,7 @@ describe Redcrumbs do
     end
 
     it 'defaults to :user for target_class_sym' do
-      expect(Redcrumbs.target_class_sym).to eq(:user)
+      expect(Redcrumbs.target_class_sym).to eq(:player)
     end
 
     it 'defaults to id for target_primary_key' do
@@ -41,9 +41,9 @@ describe Redcrumbs do
 
     after do
       Redcrumbs.setup do |config|
-        config.creator_class_sym = :user
+        config.creator_class_sym = :player
         config.creator_primary_key = :id
-        config.target_class_sym = :user
+        config.target_class_sym = :player
         config.target_primary_key = :id
         config.store_creator_attributes = []
         config.store_target_attributes = []

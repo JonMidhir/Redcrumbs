@@ -35,7 +35,16 @@ describe Redcrumbs::Options do
   end
 
   context 'default configuration options' do
-    subject { Game.prepare_redcrumbed_options({}) }
+    before do
+      @default_options = Game.redcrumbs_options.dup
+      Game.prepare_redcrumbed_options({})
+    end
+
+    after do
+      Game.prepare_redcrumbed_options(@default_options)
+    end
+
+    subject { Game.redcrumbs_options.dup }
 
     it 'defaults to empty array for only' do
       expect(subject[:only]).to eq([])
