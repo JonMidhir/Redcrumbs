@@ -108,4 +108,28 @@ describe Redcrumbs do
       expect(Redcrumbs.redis).to be(redis)
     end
   end
+
+  context 'changing Crumb class name' do
+    it 'should default to Crumb' do
+      Redcrumbs.class_name = nil
+
+      expect(Redcrumbs.crumb_class).to be(Redcrumbs::Crumb)
+    end
+
+    it 'should use Crumb if class doesnt exist' do
+      Redcrumbs.class_name = :foo
+
+      expect(Redcrumbs.crumb_class).to be(Redcrumbs::Crumb)
+      Redcrumbs.class_name = nil
+    end
+
+    it 'should ArgumentError if class doesnt inherit from Crumb' do
+      class Foo; end
+      Redcrumbs.class_name = :foo
+
+      expect { Redcrumbs.crumb_class }.to raise_error(ArgumentError)
+
+      Redcrumbs.class_name = nil
+    end
+  end
 end

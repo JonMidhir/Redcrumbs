@@ -29,9 +29,11 @@ module Redcrumbs
   # Constantises the class_name attribute, falls back to the Crumb default.
   #
   def self.crumb_class
-    @@class_name.classify.constantize
-  rescue
-    Crumb
+    if @@class_name and @@class_name.length > 0
+      constantize_class_name
+    else
+      Crumb
+    end
   end
   
 
@@ -70,5 +72,19 @@ module Redcrumbs
     return @@redis if @@redis
     @@redis = Redis.respond_to?(:connect) ? Redis.connect : "localhost:6379"
     @@redis
+  end
+
+  private
+
+  def self.constantize_class_name
+    klass = @@class_name.to_s.classify.constantize
+
+    unless klass < Redcrumbs::Crumb
+      raise ArgumentError, 'Redcrumbs crumb_class must inherit from Redcrumbs::Crumb'
+    end
+
+    klass
+  rescue NameError
+    Crumb
   end
 end

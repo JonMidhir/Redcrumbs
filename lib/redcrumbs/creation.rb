@@ -10,7 +10,10 @@ module Redcrumbs
     end
     
     def crumbs
-      Crumb.all(:subject_type => self.class.to_s, :subject_id => self.id)
+      Redcrumbs.crumb_class.all(
+        :subject_type => self.class.to_s, 
+        :subject_id => self.id
+      )
     end
 
     def watched_changes
@@ -48,7 +51,7 @@ module Redcrumbs
     end
     
     def create_crumb
-      n = Crumb.build_with_modifications(self)
+      n = Redcrumbs.crumb_class.build_with_modifications(self)
       n.save
     end
     
