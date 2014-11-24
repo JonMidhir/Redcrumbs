@@ -3,26 +3,35 @@ module Redcrumbs
 # affecting a user (target)
   module Users
     extend ActiveSupport::Concern
-    
+
     # Retrieves crumbs related to the user
-    def crumbs_for
-      crumb_or_custom_class.all(:target_id => self[Redcrumbs.target_primary_key], :order => [:created_at.desc])
+    #
+    def crumbs_for(opts = {})
+      klass = Redcrumbs.crumb_class
+
+      klass.targetted_by(self).all(opts)
     end
 
     # Retrieves crumbs created by the user
-    def crumbs_by
-      crumb_or_custom_class.all(:creator_id => self[Redcrumbs.creator_primary_key], :order => [:created_at.desc])
+    #
+    def crumbs_by(opts = {})
+      klass = Redcrumbs.crumb_class
+
+      klass.created_by(self).all(opts)
     end
-    
-    # A limitable collection of both crumbs_for and crumbs_by
-    # This is an unforunate hack to get over the redis dm adapter's non-support of addition (OR) queries
+
+    # Or queries don't seem to be working with dm-redis-adapter. This
+    # is a temporary workaround.
+    #
     def crumbs_as_user(opts = {})
       opts[:limit] ||= 100
-      arr = crumbs_for
-      arr += crumbs_by
-      arr.all(opts)
+
+      arr = crumbs_by.to_a + crumbs_for.to_a
+      arr.uniq!
+
+      arr.sort_by! {|c| [c.created_at, c.id]}.reverse
     end
-    
+
     # Creator method defines who should be considered the creator when a model is updated. This
     # can be overridden in the redcrumbed model to define who the creator should be. Defaults
     # to the current user (or creator class) associated with the model.
@@ -31,19 +40,11 @@ module Redcrumbs
     rescue NoMethodError
       default_creator
     end
-    
+
     private
 
     def default_creator
       send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
-    end
-    
-    def crumb_or_custom_class
-       if self.class.redcrumbs_options[:class_name]
-         self.class.redcrumbs_options[:class_name].to_s.capitalize.constantize
-       else
-         Crumb
-       end
     end
   end
 end

@@ -36,6 +36,16 @@ module Redcrumbs
       new(:modifications => subject.watched_changes, :subject => subject)
     end
 
+    def self.created_by(creator)
+      all(:creator_id => creator[Redcrumbs.creator_primary_key]) &
+      all(:creator_type => creator.class.name)
+    end
+
+    def self.targetted_by(target)
+      all(:target_id => target[Redcrumbs.target_primary_key]) &
+      all(:target_type => target.class.name)
+    end
+
     # Overrides the subject setter created by the SerializableAttributes
     # module.
     #

@@ -64,7 +64,7 @@ describe Redcrumbs::Creation do
   end
 
   context "a created crumb's attributes" do
-    let(:computer_player) { Player.create(:name => 'Ramsey') }
+    let(:computer_player) { ComputerPlayer.create(:name => 'Ramsey') }
     let(:player) { Player.create(:name => 'Jon Hope') }
 
     subject{ Game.create(:name => name, :highscore => score, :high_scorer => computer_player) }

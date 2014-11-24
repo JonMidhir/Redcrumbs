@@ -41,6 +41,9 @@ module Redcrumbs
   autoload :Users
   autoload :Creation
   autoload :Crumb
+
+  include Options
+  include Users
   
   def self.setup
     yield self
@@ -53,8 +56,8 @@ module Redcrumbs
   module ClassMethods
     def redcrumbed(options = {})
       
-      include Options
-      include Users
+      # include Options
+      # include Users
       include Creation
       
       prepare_redcrumbed_options(options)

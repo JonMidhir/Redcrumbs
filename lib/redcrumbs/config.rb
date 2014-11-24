@@ -10,6 +10,8 @@ module Redcrumbs
   mattr_accessor :mortality
   mattr_accessor :redis
 
+  mattr_accessor :class_name
+
 
   # Todo: Remove the default creator/target class and allow nil
   # This should only be used to load old crumbs from previous versions
@@ -22,6 +24,15 @@ module Redcrumbs
 
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
+
+
+  # Constantises the class_name attribute, falls back to the Crumb default.
+  #
+  def self.crumb_class
+    @@class_name.classify.constantize
+  rescue
+    Crumb
+  end
   
 
   # Stolen from resque. Thanks!
