@@ -22,6 +22,8 @@ module Redcrumbs
         define_setter_for(name)
         define_getter_for(name)
         define_loader_for(name)
+
+        self
       end
 
       private

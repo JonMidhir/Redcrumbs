@@ -3,14 +3,14 @@ require 'spec_helper'
 describe Redcrumbs::Options do
   context 'with explicit configuration' do
     let(:options){ {'only' => [:id, :name], :store => {:only =>[:id, :name]}, :if => :new_record?, :unless => :persisted?} }
-    let(:default_options) { Game.redcrumbs_options.dup }
     
     before do
+      @default_options = Game.redcrumbs_options.dup
       Game.prepare_redcrumbed_options(options)
     end
 
     after do
-      Game.prepare_redcrumbed_options(default_options)
+      Game.prepare_redcrumbed_options(@default_options)
     end
 
     it 'has symbolized keys' do
@@ -35,7 +35,16 @@ describe Redcrumbs::Options do
   end
 
   context 'default configuration options' do
-    subject { Game.prepare_redcrumbed_options({}) }
+    before do
+      @default_options = Game.redcrumbs_options.dup
+      Game.prepare_redcrumbed_options({})
+    end
+
+    after do
+      Game.prepare_redcrumbed_options(@default_options)
+    end
+
+    subject { Game.redcrumbs_options.dup }
 
     it 'defaults to empty array for only' do
       expect(subject[:only]).to eq([])

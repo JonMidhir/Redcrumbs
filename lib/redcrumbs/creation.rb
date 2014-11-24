@@ -19,9 +19,9 @@ module Redcrumbs
 
     def storable_attributes_keys
       store = self.class.redcrumbs_options[:store]
-
+      
       store[:only] or 
-      attributes.keys.reject {|key| store[:except].include?(k.to_sym)} or
+      (store[:except] and attributes.keys.reject {|key| store[:except].include?(key.to_sym)}) or
       []
     end
 
