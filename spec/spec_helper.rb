@@ -9,8 +9,6 @@ Bundler.require(:test)
 RSpec.configure do |c|
   c.before(:suite) do
     CreateSchema.suppress_messages{ CreateSchema.migrate(:up) }
-    Redcrumbs.creator_class_sym = :player
-    Redcrumbs.target_class_sym = :player
   end
 
   c.after(:each) do

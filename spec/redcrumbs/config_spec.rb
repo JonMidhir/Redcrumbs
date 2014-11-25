@@ -1,135 +1,162 @@
 require 'spec_helper'
 
 describe Redcrumbs do
-  context 'default module configuration options' do
-    it 'defaults to :user for creator_class_sym' do
-      expect(Redcrumbs.creator_class_sym).to eq(:player)
+  describe '.creator_class_sym' do
+    subject { Redcrumbs.creator_class_sym }
+
+    context 'when unchanged' do
+      it { is_expected.to eq(:user) }
     end
 
-    it 'defaults to id for creator_primary_key' do
-      expect(Redcrumbs.creator_primary_key).to eq('id')
-    end
+    context 'when changed to :game' do
+      before { Redcrumbs.creator_class_sym = :game }
+      after  { Redcrumbs.creator_class_sym = :user }
 
-    it 'defaults to :user for target_class_sym' do
-      expect(Redcrumbs.target_class_sym).to eq(:player)
-    end
-
-    it 'defaults to id for target_primary_key' do
-      expect(Redcrumbs.target_primary_key).to eq('id')
-    end
-
-    it 'defaults to empty array for store_creator_attributes' do
-      expect(Redcrumbs.store_creator_attributes).to eq([])
-    end
-
-    it 'defaults to empty array for store_target_attributes' do
-      expect(Redcrumbs.store_target_attributes).to eq([])
+      it { is_expected.to eq(:game)}
     end
   end
 
-  context 'customised module configuration options' do
-    before do
-      Redcrumbs.setup do |config|
-        config.creator_class_sym = :game
-        config.creator_primary_key = :id
-        config.target_class_sym = :game
-        config.target_primary_key = :id
-        config.store_creator_attributes = [:id, :name]
-        config.store_target_attributes = [:id, :name]
-      end
+
+  describe '.creator_primary_key' do
+    subject { Redcrumbs.creator_primary_key }
+
+    context 'when unchanged' do
+      it { is_expected.to eq('id') }
     end
 
-    after do
-      Redcrumbs.setup do |config|
-        config.creator_class_sym = :player
-        config.creator_primary_key = :id
-        config.target_class_sym = :player
-        config.target_primary_key = :id
-        config.store_creator_attributes = []
-        config.store_target_attributes = []
-      end
-    end
+    context 'when changed to :name' do
+      before { Redcrumbs.creator_primary_key = :name }
+      after  { Redcrumbs.creator_primary_key = :id }
 
-    it 'defaults to :user for creator_class_sym' do
-      expect(Redcrumbs.creator_class_sym).to eq(:game)
-    end
-
-    it 'defaults to id for creator_primary_key' do
-      expect(Redcrumbs.creator_primary_key).to eq(:id)
-    end
-
-    it 'defaults to :user for target_class_sym' do
-      expect(Redcrumbs.target_class_sym).to eq(:game)
-    end
-
-    it 'defaults to id for target_primary_key' do
-      expect(Redcrumbs.target_primary_key).to eq(:id)
-    end
-
-    it 'defaults to empty array for store_creator_attributes' do
-      expect(Redcrumbs.store_creator_attributes).to eq([:id, :name])
-    end
-
-    it 'defaults to empty array for store_target_attributes' do
-      expect(Redcrumbs.store_target_attributes).to eq([:id, :name])
-    end
-
-    it 'initializes redis client from URL string' do
-      Redcrumbs.redis = 'redis://localhost:6379'
-      expect(Redcrumbs.redis.namespace).to eq(:redcrumbs)
-      expect(Redcrumbs.redis.client.host).to eq('localhost')
-      expect(Redcrumbs.redis.client.port).to eq(6379)
-    end
-
-    it 'initializes redis client from URL string without scheme' do
-      Redcrumbs.redis = 'localhost:6379'
-      expect(Redcrumbs.redis.namespace).to eq(:redcrumbs)
-      expect(Redcrumbs.redis.client.host).to eq('localhost')
-      expect(Redcrumbs.redis.client.port).to eq(6379)
-    end
-
-    it 'initializes redis client from URL string with namespace' do
-      Redcrumbs.redis = 'localhost:6379/some_namespace'
-
-      expect(Redcrumbs.redis.namespace).to eq('some_namespace')
-    end
-
-    it 'uses existing redis client when assigned' do
-      redis = Redis.new
-      Redcrumbs.redis = redis
-
-      expect(Redcrumbs.redis.redis).to be(redis)
-    end
-
-    it 'uses existing client namespace when assigned' do
-      redis = Redis::Namespace.new('some_namespace')
-      Redcrumbs.redis = redis
-      
-      expect(Redcrumbs.redis).to be(redis)
+      it { is_expected.to eq(:name)}
     end
   end
 
-  context 'changing Crumb class name' do
-    it 'should default to Crumb' do
-      Redcrumbs.class_name = nil
 
-      expect(Redcrumbs.crumb_class).to be(Redcrumbs::Crumb)
+  describe '.target_class_sym' do
+    subject { Redcrumbs.target_class_sym }
+
+    context 'when unchanged' do
+      it { is_expected.to eq(:user) }
     end
 
-    it 'should use Crumb if class doesnt exist' do
-      Redcrumbs.class_name = :foo
+    context 'when changed to :game' do
+      before { Redcrumbs.target_class_sym = :game }
+      after  { Redcrumbs.target_class_sym = :user }
 
-      expect(Redcrumbs.crumb_class).to be(Redcrumbs::Crumb)
-      Redcrumbs.class_name = nil
+      it { is_expected.to eq(:game)}
+    end
+  end
+
+
+  describe '.target_primary_key' do
+    subject { Redcrumbs.target_primary_key }
+
+    context 'when unchanged' do
+      it { is_expected.to eq('id') }
     end
 
-    it 'should ArgumentError if class doesnt inherit from Crumb' do
-      class Foo; end
-      Redcrumbs.class_name = :foo
+    context 'when changed to :name' do
+      before { Redcrumbs.target_primary_key = :name }
+      after  { Redcrumbs.target_primary_key = :id }
 
-      expect { Redcrumbs.crumb_class }.to raise_error(ArgumentError)
+      it { is_expected.to eq(:name)}
+    end
+  end
 
-      Redcrumbs.class_name = nil
+
+  describe '.store_creator_attributes' do
+    subject { Redcrumbs.store_creator_attributes }
+
+    context 'when unchanged' do
+      it { is_expected.to eq([]) }
+    end
+
+    context 'when given attribute keys' do
+      before { Redcrumbs.store_creator_attributes = [:id, :name] }
+      after  { Redcrumbs.store_creator_attributes = [] }
+
+      it { is_expected.to eq([:id, :name])}
+    end
+  end
+
+
+  describe '.store_target_attributes' do
+    subject { Redcrumbs.store_target_attributes }
+
+    context 'when unchanged' do
+      it { is_expected.to eq([]) }
+    end
+
+    context 'when given attribute keys' do
+      before { Redcrumbs.store_target_attributes = [:id, :name] }
+      after  { Redcrumbs.store_target_attributes = [] }
+
+      it { is_expected.to eq([:id, :name])}
+    end
+  end
+
+
+  describe '.redis' do
+    subject { Redcrumbs.redis }
+
+    context 'when given a URL string with port and scheme' do
+      before { Redcrumbs.redis = 'redis://localhost:6379' }
+
+      it { expect(subject.namespace).to eq(:redcrumbs) }
+      it { expect(subject.client.host).to eq('localhost') }
+      it { expect(subject.client.port).to eq(6379) }
+    end
+
+    context 'when given a URL string without scheme' do
+      before { Redcrumbs.redis = 'localhost:6379' }
+
+      it { expect(subject.namespace).to eq(:redcrumbs) }
+      it { expect(subject.client.host).to eq('localhost') }
+      it { expect(subject.client.port).to eq(6379) }
+    end
+
+    context 'when given a URL string with namespace' do
+      before { Redcrumbs.redis = 'localhost:6379/some_namespace' }
+
+      it { expect(subject.namespace).to eq('some_namespace') }
+    end
+
+    context 'when given an existing redis client' do
+      let(:redis) { Redis.new }
+      before { Redcrumbs.redis = redis }
+
+      it { expect(subject.redis).to eq(redis) }
+    end
+
+    context 'when given an existing redis namespace' do
+      let(:redis) { Redis::Namespace.new('some_namespace') }
+      before { Redcrumbs.redis = redis }
+
+      it { is_expected.to eq(redis) }
+    end
+  end
+
+
+  describe '.crumb_class' do
+    subject { Redcrumbs.crumb_class }
+
+    context 'when class_name unchanged' do
+      it { is_expected.to be(Redcrumbs::Crumb) }
+    end
+
+    context 'when class_name set to unknown class' do
+      before { Redcrumbs.class_name = :foo }
+      after  { Redcrumbs.class_name = nil }
+
+      it { is_expected.to be(Redcrumbs::Crumb) }
+    end
+
+    context 'when class doesnt inherit from Crumb' do
+      before { Redcrumbs.class_name = :game }
+      after  { Redcrumbs.class_name = nil }
+
+      it { expect { subject }.to raise_error(ArgumentError) }
     end
   end
 end
