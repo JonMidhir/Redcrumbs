@@ -24,7 +24,7 @@ module Redcrumbs
       store = self.class.redcrumbs_options[:store]
       
       store[:only] or 
-      (store[:except] and attributes.keys.reject {|key| store[:except].include?(key.to_sym)}) or
+      symbolized_attribute_keys(store[:except]) or
       []
     end
 
@@ -42,8 +42,9 @@ module Redcrumbs
       end
     end
     
+    # Todo: Fix inconsistent naming; storable vs storeable
     def storable_methods
-      storable_methods_names.inject({}) {|h, n| h.merge(n => send(n))}
+      storable_methods_names.inject({}) {|h, n| h.merge(n.to_s => send(n))}
     end
     
     def serialized_as_redcrumbs_subject
@@ -53,6 +54,7 @@ module Redcrumbs
     def create_crumb
       n = Redcrumbs.crumb_class.build_with_modifications(self)
       n.save
+      n
     end
     
     # This is called after the record is saved to store the changes on the model, including anything done in before_save validations
@@ -61,6 +63,13 @@ module Redcrumbs
     end
     
     private
+
+    def symbolized_attribute_keys(except = [])
+      return nil unless except
+
+      symbolized_attribute_keys = attributes.dup.symbolize_keys!.keys
+      symbolized_attribute_keys.reject {|key| except.include?(key)}
+    end
     
     def methods_from_array(array)
       self.class.instance_methods.select {|method| array.include?(method.to_sym)}
