@@ -20,13 +20,13 @@ You'll need access to a [Redis](http://redis.io) server running locally, remotel
 
 Add the Gem to your Gemfile:
 
-```
+```ruby
 gem 'redcrumbs'
 ```
 
 Then run the generator to create the initializer file.
 
-```
+```sh
 $ rails g redcrumbs:install
 ```
 
@@ -37,7 +37,7 @@ Done! Look in `config/initializers/redcrumbs.rb` for customisation options.
 
 Start tracking a model by adding `redcrumbed` to the class:
 
-```
+```ruby
 class Game < ActiveRecord::Base
   redcrumbed :only => [:name, :highscore]
   
@@ -49,7 +49,7 @@ end
 That's all you need to get started. `Game` objects will now start generating activities when their `name` or `highscore` attributes are updated.
 
 
-```
+```ruby
 game = Game.last
 => #<Game id: 1, name: "Paperboy" ... >
 
@@ -60,18 +60,18 @@ game.update_attributes(:name => "Paperperson")
 Activities are objects of class `Crumb` and contain all the data you need to find out about what has changed in the update.
 
 
-```
+```ruby
 crumb = game.crumbs.last
 => #<Crumb id: 53 ... >
 
 crumb.modifications
-=> {"name" => ["Belfast City Hall", "City Hall, Belfast"]}
+=> {"name" => ["Paperboy", "Paperperson"]}
 
 ```
 
-The `.crumbs` method shown here is available to any class that is `redcrumbed` and is just a DataMapper::Collection. You can use it to construct any queries you like. For example, to get the last 10 activities on a `game`:
+The `.crumbs` method shown here is available to any class that is `redcrumbed` and is just a DataMapper collection. You can use it to construct any queries you like. For example, to get the last 10 activities on `game`:
 
-```
+```ruby
 game.crumbs.all(:order => :created_at.desc, :limit => 10)
 ```
 
