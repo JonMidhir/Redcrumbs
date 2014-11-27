@@ -23,6 +23,7 @@ describe Redcrumbs::SerializableAssociation do
       it { is_expected.to respond_to(:creator).with(0).arguments }
       it { is_expected.to respond_to(:creator=).with(1).arguments }
       it { is_expected.to respond_to(:full_creator).with(0).arguments }
+      it { is_expected.to respond_to(:fully_loaded_creator?).with(0).arguments }
     end
 
     context 'when given an invalid association' do
