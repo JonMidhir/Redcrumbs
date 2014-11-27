@@ -1,7 +1,9 @@
-source "http://rubygems.org"
+source 'https://rubygems.org'
 
-# Specify your gem's dependencies in redcrumbs.gemspec
-gemspec
+gem 'activerecord', '~> 3.2'
+gem 'activesupport', '~> 3.2'
+
+gemspec :path => '..'
 
 group :test do
   gem 'codeclimate-test-reporter', :group => :test, :require => nil

@@ -2,57 +2,70 @@ module Redcrumbs
   module Creation
     extend ActiveSupport::Concern
     
-    module InstanceMethods
-      def crumbs
-        Crumb.all(:subject_type => self.class.to_s, :subject_id => self.id)
-      end
+    def crumbs
+      Redcrumbs.crumb_class.all(
+        :subject_type => self.class.to_s, 
+        :subject_id => self.id
+      )
+    end
 
-      def watched_changes
-        changes.slice(*self.class.redcrumbs_options[:only])
-      end
+    def watched_changes
+      changes.slice(*self.class.redcrumbs_options[:only])
+    end
 
-      def storeable_attributes
-        store = self.class.redcrumbs_options[:store]
-        if store.has_key?(:only)
-          attributes.reject {|k,v| !store[:only].include?(k.to_sym)}
-        elsif store.has_key?(:except)
-          attributes.reject {|k,v| store[:except].include?(k.to_sym)}
-        else
-          {}
-        end
-      end
+    def storable_attributes_keys
+      store = self.class.redcrumbs_options[:store]
       
-      def attributes_from_storeable_methods
-        store = self.class.redcrumbs_options[:store]
-        if store.has_key?(:methods)
-          # get the methods that actually exist on the model
-          methods = methods_from_array(store[:methods])
-          # inject them into a hash with their outcomes as values
-          methods.inject({}) {|h,a| h.merge(a => send(a))}
-        else
-          {}
-        end
+      store[:only] or 
+      symbolized_attribute_keys(store[:except]) or
+      []
+    end
+
+    def storeable_attributes
+      attributes.slice *storable_attributes_keys.map(&:to_s)
+    end
+
+    def storable_methods_names
+      store = self.class.redcrumbs_options[:store]
+
+      if store[:methods]
+        methods.select {|method| store[:methods].include?(method.to_sym)}
+      else
+        []
       end
-      
-      def storeable_attributes_and_method_attributes
-        storeable_attributes.merge(attributes_from_storeable_methods)
-      end
-      
-      def create_crumb
-        n = Crumb.build_with_modifications(self)
-        n.save
-      end
-      
-      # This is called after the record is saved to store the changes on the model, including anything done in before_save validations
-      def notify_changes
-        create_crumb unless watched_changes.empty?
-      end
-      
-      private
-      
-      def methods_from_array(array)
-        self.class.instance_methods.select {|method| array.include?(method.to_sym)}
-      end
+    end
+    
+    # Todo: Fix inconsistent naming; storable vs storeable
+    def storable_methods
+      storable_methods_names.inject({}) {|h, n| h.merge(n.to_s => send(n))}
+    end
+    
+    def serialized_as_redcrumbs_subject
+      storeable_attributes.merge(storable_methods)
+    end
+    
+    def create_crumb
+      n = Redcrumbs.crumb_class.build_with_modifications(self)
+      n.save
+      n
+    end
+    
+    # This is called after the record is saved to store the changes on the model, including anything done in before_save validations
+    def notify_changes
+      create_crumb unless watched_changes.empty?
+    end
+    
+    private
+
+    def symbolized_attribute_keys(except = [])
+      return nil unless except
+
+      symbolized_attribute_keys = attributes.dup.symbolize_keys!.keys
+      symbolized_attribute_keys.reject {|key| except.include?(key)}
+    end
+    
+    def methods_from_array(array)
+      self.class.instance_methods.select {|method| array.include?(method.to_sym)}
     end
   end
 end

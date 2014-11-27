@@ -1,0 +1,29 @@
+language: ruby
+
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1.0
+  - ruby-head
+
+gemfile:
+  - gemfiles/Gemfile.rails-3.1.x
+  - gemfiles/Gemfile.rails-3.2.x
+  - gemfiles/Gemfile.rails-4.0.x
+  - gemfiles/Gemfile.rails-4.1.x
+
+sudo: false
+
+services:
+  - redis-server
+  
+script: bundle exec rspec
+
+branches:
+  only:
+    - master
+    - version_5.0
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
