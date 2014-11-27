@@ -69,7 +69,7 @@ crumb.modifications
 
 ```
 
-The `.crumbs` method shown here is available to any class that is `redcrumbed` and is just a DataMapper collection. You can use it to construct any queries you like. For example, to get the last 10 activities on `game`:
+The `.crumbs` method shown here is available to any class that is `redcrumbed`. It is just a DataMapper collection and you can use it to construct any queries you like. For example, to get the last 10 activities on `game`:
 
 ```ruby
 game.crumbs.all(:order => :created_at.desc, :limit => 10)
@@ -81,7 +81,7 @@ Redcrumbs doesn't provide any helpers to turn crumbs into translated text or HTM
 
 Now that we know how to query activities associated with an object we just need to create a helper to translate this into readable text or HTML. Crumbs have a `subject` association that gives you access to the original object. This is useful when you need access to attributes that aren't in the modifications hash.
 
-Here's an example of a text simple helper:
+Here's an example of a simple text helper:
 
 ```ruby
 module ActivityHelper
@@ -105,7 +105,7 @@ module ActivityHelper
 end
 ```
 
-And an example of its output:
+And examples of its output:
 
 ```
 "Someone renamed Paperboy to Paperperson."
@@ -120,7 +120,7 @@ Simply reporting that 'Someone did xyz' isn't very useful, so Redcrumbs has user
 
 #### Whodunnit?
 
-Crumbs can track the user that made the change (or any object really) as `creator`, and even a secondary user affected by the change as `target`. You simply define methods called `creator` and `target` that return the corresponding object:
+Crumbs can track the user that made the change (or any object really) as `creator`, and even a secondary user affected by the change as `target`. You simply define methods called `creator` and `target` on the subject class that return the corresponding object:
 
 ```ruby
 class Game < ActiveRecord::Base
@@ -162,24 +162,45 @@ player.crumbs_for
 player.crumbs_as_user
 ```
 
+## Advanced Options
 
-## Conditional control
+#### Conditional control
 
-You can pass `:if` and `:unless` options to the redcrumbed method to control when an action should be tracked in the same way you would for an ActiveRecord callback. For example:
+You can pass `:if` and `:unless` options to the redcrumbed method to control when an action should be tracked in the same way you would for an ActiveRecord callback. For example, if you only want to track activity _after_ a game has been created:
 
-```
-class Venue < ActiveRecord::Base
-  redcrumbed :only => [:name, :latlng], :if => :has_user?
+```ruby
+class Game < ActiveRecord::Base
+  redcrumbed :only => [:name, :highscore], :unless => :new_record?
   
-  def has_user?
-    !!user_id
-  end
+  #...
 end
 ```
 
-## Attribute storage
+#### Attribute storage
 
-It's not best practice but since the emphasis is on easing the load on our main database we have bent a few rules in order to reduce the calls on the database to, ideally, zero. In any given app you may be tracking several models and this results in a lot of SQL we could do without.
+In many cases to assemble your feed you'll only ever need the `modifications` made to an object plus a couple of common attributes; such as `name` or `id`. When this is the case you can avoid loading the subject from the database entirely by storing those attributes on the crumb itself.
+
+```ruby
+class Game < ActiveRecord::Base
+  redcrumbed :only => [:name, :highscore], :store => {:only => [:id, :name]}
+  
+  #...
+end
+```
+
+Now when you call `crumb.subject` you will get an instance of `Game` with only the `:id` and `:name` attributes set. If you need the full object you can always load it fully from the database by calling `crumb.full_subject`.
+
+<blockquote>
+Note: Be careful using this. The tradeoff is bloat. You will get fewer Redis keys per megabyte. An :except option is available instead of :only but its use is not advised.</blockquote>
+
+#### Creator / Target storage
+
+Similarly to __attribute storage__ above, you can store properties of the `creator` and `target` on the crumb to avoid having to load them from the database. These attributes can only be set globally in the initialization file. Since these objects can differ wildly from model to model this only works when they share some common attributes.
+
+For example a photo might be _created_ by a `User` or an event by a `UserGroup`. If both objects had `:id` and `:name` attributes, for example, you could store these.
+
+The usual warnings apply. However, by combining this with __attribute storage__ it's possible to return multiple activity feeds without touching the primary datastore!
+
 
 #### Versions >= 0.3.0
 
