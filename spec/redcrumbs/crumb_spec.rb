@@ -81,7 +81,7 @@ describe Redcrumbs::Crumb do
 
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
-      it { expect(creator.created_at).to eq(player.created_at) }
+      it { expect(creator.created_at.to_i).to eq(player.created_at.to_i) }
     end
   end
 
@@ -117,7 +117,7 @@ describe Redcrumbs::Crumb do
 
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
-      it { expect(target.created_at).to eq(player.created_at) }
+      it { expect(target.created_at.to_i).to eq(player.created_at.to_i) }
     end
   end
 
@@ -209,7 +209,7 @@ describe Redcrumbs::Crumb do
       # subject { crumb.time_to_live }
 
       it { expect(subject.time_to_live).to be_truthy }
-      it { expect(subject.time_to_live).to eq(30.days) }
+      it { expect(subject.time_to_live).to eq(30.days.to_i) }
     end
   end
 
