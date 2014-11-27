@@ -31,20 +31,5 @@ module Redcrumbs
 
       arr.sort_by! {|c| [c.created_at, c.id]}.reverse
     end
-
-    # Creator method defines who should be considered the creator when a model is updated. This
-    # can be overridden in the redcrumbed model to define who the creator should be. Defaults
-    # to the current user (or creator class) associated with the model.
-    def creator
-      super
-    rescue NoMethodError
-      default_creator
-    end
-
-    private
-
-    def default_creator
-      send(Redcrumbs.creator_class_sym) if respond_to?(Redcrumbs.creator_class_sym)
-    end
   end
 end
