@@ -116,60 +116,52 @@ And an example of its output:
 
 ## User context
 
-Crumbs can also track the user that made the change (creator), and even a secondary user affected by the change (target). By default the creator is considered to be the user associated with the object:
+Simply reporting that 'Someone did xyz' isn't very useful, so Redcrumbs has user context baked in. 
 
-```
-> user = User.find(2)
-=> #<User id: 2, name: "Jon" ... >
+#### Whodunnit?
 
-> venue = user.venues.last
-=> #<Venue id: 1, name: "City Hall, Belfast", user_id: 2 ... >
+Crumbs can track the user that made the change (or any object really) as `creator`, and even a secondary user affected by the change as `target`. You simply define methods called `creator` and `target` that return the corresponding object:
 
-> venue.update_attributes(:name => "Halla na Cathrach, Bhéal Feirste")
-=> #<Venue id: 1, name: "Halla na Cathrach, Bhéal Feirste", user_id: 2 ... >
-
-> crumb = venue.crumbs.last
-=> #<Crumb id: 54 ... >
-
-> crumb.modifications
-=> {"name" => ["City Hall, Belfast", "Halla na Cathrach, Bhéal Feirste"]}
-
-> crumb.creator
-=> #<User id: 2, name: "Jon" ... >
-
-# and really cool, returns a limited (default 100) array of crumbs affecting a user in reverse order:
-> user.crumbs_as_user(:limit => 20)
-=> [#<Crumb id: 64 ... >, #<Crumb id: 53 ... >, #<Crumb id: 42 ... > ... ]
-
-# or if you just want the crumbs created by the user
-> user.crumbs_by
-
-# or affecting the user
-> user.crumbs_for
-
-```
-
-You can customise just what should be considered a creator or target globally across your app by editing a few lines in the redcrumbs initializer. Or you can override the creator and target methods if you want class-specific control:
-
-```
-class User < ActiveRecord::Base
-  belongs_to :alliance
-  has_many :venues
-end
-
-class Venue < ActiveRecord::Base
-  redcrumbed :only => [:name, :latlng]
+```ruby
+class Game < ActiveRecord::Base
+  redcrumbed :only => [:name, :highscore]
   
-  belongs_to :user
-  
-  validates :name, :presence => true
-  validates :latlng, :uniqueness => true
+  has_one :high_scorer, class_name: 'Player'
   
   def creator
-    user.alliance
+    high_scorer
   end
 end
 ```
+
+To get the creator and target of a crumb:
+
+     crumb.creator
+     => #<Player id: 394 ...>
+     
+     crumb.target
+     => #<ComputerPlayer id: 3 ...>
+
+
+#### Querying user activity
+
+As you'd expect you can also grab all the activities affecting a user.
+
+```ruby
+# Activities created by a user
+player.crumbs_by
+```
+
+```ruby
+# Activities targetting a user
+player.crumbs_for
+```
+
+```ruby
+# All activities affecting a user
+player.crumbs_as_user
+```
+
 
 ## Conditional control
 
