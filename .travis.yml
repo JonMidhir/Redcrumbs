@@ -27,3 +27,7 @@ branches:
 matrix:
   allow_failures:
     - rvm: ruby-head
+
+addons:
+  code_climate:
+    repo_token: 10b4b9067afdf62b56253fa8b4fb38ecc7e9b7fc8bb3e45e6d954ef6e3190445
