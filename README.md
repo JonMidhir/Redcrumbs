@@ -7,11 +7,11 @@
 
 Fast and unobtrusive activity tracking of ActiveRecord models using Redis and DataMapper.
 
-Introducing activity feeds to your application can come at significant cost, increasing the number of writes to your primary datastore across many controller actions - sometimes when previously only reads were being performed. Activity items have their own characteristics too; they're often not mission critical data, expirable over time and queried in predictable ways.
+Redcrumbs is designed to make it easy to start generating activity feeds in your application using Redis as a back-end.
+
+Introducing activity feeds can come at significant cost, increasing the number of writes to your primary datastore across many controller actions - sometimes when previously only reads were being performed. Activity feeds have their own characteristics too; they're often not mission critical data, expirable over time and queried in predictable ways.
 
 It turns out Redis is an ideal solution. Superfast to write to and read from and with Memcached-style key expiration built in, leaving your primary database to focus on the business logic.
-
-Redcrumbs is designed to make it trivially easy to start generating activity feeds from your application using Redis as a back-end.
 
 
 ## Installation
@@ -79,7 +79,7 @@ game.crumbs.all(:order => :created_at.desc, :limit => 10)
 
 Redcrumbs doesn't provide any helpers to turn crumbs into translated text or HTML views but this is extremely easy to do once you're set up and creating activities.
 
-Now that we know how to query activities associated with an object we just need to create a helper to translate this into readable text or HTML. Crumbs have a `subject` association that gives you access to the original object. This is useful when you need access to attributes that aren't in the modifications hash.
+Now that we know how to get the most recent activities associated with an object we just need to create a helper to translate these into readable text or HTML. Crumbs have a `subject` association that gives you access to the original object. This is useful when you need access to attributes that aren't in the modifications hash.
 
 Here's an example of a simple text helper:
 
@@ -201,61 +201,28 @@ For example a photo might be _created_ by a `User` or an event by a `UserGroup`.
 
 The usual warnings apply. However, by combining this with __attribute storage__ it's possible to return multiple activity feeds without touching the primary datastore!
 
+## Changes since v0.4.9
+- Key mortality works.
+- No longer adding `creator` according to initializer options.
+- More robust Redis assignment.
+- Support for Redis Namespaces.
+- Major refactor.
+- Decent test coverage.
 
-#### Versions >= 0.3.0
-
-`redcrumbed` accepts a `:store` option to which you can pass a hash of options similar to that of the ActiveRecord `as_json` method. These are attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
-
-Examples:
-
-```
-class Venue
-  redcrumbed :only => [:name, :latlng], :store => {:only => [:id, :name]}
-end
-```
-
-```
-class Venue
-  redcrumbed :only => [:name, :latlng], :store => {:except => [:updated_at, :created_at]}
-end
-```
-
-```
-class Venue
-  redcrumbed :only => [:name, :latlng], :store => {:only => [:id, :name], :methods => [:checkins]}
-end
-```
-
-#### Versions  < 0.3.0
-
-`redcrumbed` accepts a `:store` option to which you can pass an array of attributes of the subject that you'd like to store on the crumb object itself. Use it sparingly if you know that, for example, you are only ever going to really use a couple of attributes of the subject and you want to avoid loading the whole thing from the database.
-
-```
-class Venue
-  redcrumbed :only => [:name, :latlng], :store => [:id, :name]
-end
-```
-
-#### Using the stored object
-
-So now if you call `crumb.subject` instead of loading the Venue from your database it will instantiate a new Venue with the only the attributes you have stored. You can always retrieve the original by calling `crumb.full_subject`.
-
-_ If you plan to use the `methods` option to store data on the Crumb you should only use it to store attr_accessors unless you won't be instantiating the subject itself _
-
-#### Creator and Target storage
-
-As you might expect, you can also do this for the creator and target of the crumb. See the redcrumbs.rb initializer for how to set this as a global configuration.
-
+## Compatibility
+Tested against:
+- Ruby 1.9.3 to 2.1.0
+- ActiveRecord 3.1 to 4.1
 
 ## To-do
 
-Lots of refactoring, tests and new features.
+Allow swapping out the backend to mongo or other key value stores. 
 
 ## Testing
 
 Running tests requires a redis server to be running on the local machine with access over port 6379.
-Run tests with `rspec`.
+Run tests with `bundle exec rspec`.
 
 ## License
 
-Created by John Hope ([@midhir](http://www.twitter.com/midhir)) (c) 2012 for Project Zebra ([@projectzebra](http://www.twitter.com/projectzebra)). Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
+Created by John Hope ([@midhir](http://www.twitter.com/midhir)) for Project Zebra ([@projectzebra](http://www.twitter.com/projectzebra)) (c) 2014. Released under MIT License (http://www.opensource.org/licenses/mit-license.php).
