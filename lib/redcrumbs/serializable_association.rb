@@ -22,6 +22,7 @@ module Redcrumbs
         define_setter_for(name)
         define_getter_for(name)
         define_loader_for(name)
+        define_load_state_getter(name)
 
         self
       end
@@ -56,7 +57,20 @@ module Redcrumbs
       #
       def define_loader_for(name)
         define_method("full_#{name}") do
+          instance_variable_set("@#{name}_load_state", true)
           instance_variable_set("@#{name}", load_associated(name))
+        end
+      end
+
+
+      # Define method to check if association has been fully loaded
+      # from the database.
+      #
+      def define_load_state_getter(name)
+        instance_variable_set("@#{name}_load_state", false)
+
+        define_method("has_loaded_#{name}?") do
+          instance_variable_get("@#{name}_load_state")
         end
       end
     end
