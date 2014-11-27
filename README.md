@@ -1,34 +1,30 @@
+# Redcrumbs
+
 [![Build Status](https://travis-ci.org/JonMidhir/Redcrumbs.svg?branch=version_5.0)](https://travis-ci.org/JonMidhir/Redcrumbs)
 [![Code Climate](https://codeclimate.com/github/JonMidhir/Redcrumbs/badges/gpa.svg)](https://codeclimate.com/github/JonMidhir/Redcrumbs)
 [![Test Coverage](https://codeclimate.com/github/JonMidhir/Redcrumbs/badges/coverage.svg)](https://codeclimate.com/github/JonMidhir/Redcrumbs)
 [![Dependency Status](https://gemnasium.com/JonMidhir/Redcrumbs.svg)](https://gemnasium.com/JonMidhir/Redcrumbs)
 
-
-# Redcrumbs
-
 Fast and unobtrusive activity tracking of ActiveRecord models using Redis and DataMapper.
 
-Redcrumbs is designed for high-traffic applications that need to track changes to their tables without making additional writes to the database. It is especially useful where the saved history needs to be expired over time and is not mission critical data. The emphasis is on reducing response times and easing the load on your main database.
+Introducing activity feeds to your application can come at significant cost, increasing the number of writes to your primary datastore across many controller actions - sometimes when previously only reads were being performed. Activity items have their own characteristics too; they're often not mission critical data, expirable over time and queried in predictable ways.
 
-Note: Now compatible with Rails 3.1+ only.
+It turns out Redis is an ideal solution. Superfast to write to and read from and with Memcached-style key expiration built in, leaving your primary database to focus on the business logic.
 
-User context is built in and fully customisable and this makes Redcrumbs particularly useful for reporting relevant activity to users as it happens in your app.
+Redcrumbs is designed to make it trivially easy to start generating activity feeds from your application using Redis as a back-end.
 
-Redcrumbs is used for the 'News' feature in Project Zebra games but could also be used as the basis of a fast versioning or reporting system.
-
-For a more complete versioning system see the excellent [vestal_versions](https://github.com/laserlemon/vestal_versions) gem.
-
-Please note, this is early stage stuff. We're not using it in production just yet.
 
 ## Installation
 
-Assuming you've got Redis installed and running on your system just add this to your Gemfile:
+You'll need access to a [Redis](http://redis.io) server running locally, remotely or from a managed service; such as [Redis Labs](https://redislabs.com/). 
+
+Add the Gem to your Gemfile:
 
 ```
 gem 'redcrumbs'
 ```
 
-Then run the generator to create the initializer file. No migrations necessary!
+Then run the generator to create the initializer file.
 
 ```
 $ rails g redcrumbs:install
@@ -36,43 +32,52 @@ $ rails g redcrumbs:install
 
 Done! Look in `config/initializers/redcrumbs.rb` for customisation options.
 
-## Example
+
+## Getting Started
 
 Start tracking a model by adding `redcrumbed` to the class:
 
 ```
-class Venue < ActiveRecord::Base
-  redcrumbed :only => [:name, :latlng]
+class Game < ActiveRecord::Base
+  redcrumbed :only => [:name, :highscore]
   
   validates :name, :presence => true
-  validates :latlng, :uniqueness => true
+  validates :highscore, :presence => true
 end
 ```
 
-And that's pretty much it! Now you can do this:
+That's all you need to get started. `Game` objects will now start generating activities when their `name` or `highscore` attributes are updated.
+
 
 ```
-> venue = Venue.last
-=> #<Venue id: 1, name: "Belfast City Hall" ... >
+game = Game.last
+=> #<Game id: 1, name: "Paperboy" ... >
 
-> venue.update_attributes(:name => "City Hall, Belfast")
-=> #<Venue id: 1, name: "City Hall, Belfast" ... >
+game.update_attributes(:name => "Paperperson")
+=> #<Game id: 1, name: "Paperperson" ... >
+```
 
-> venue.crumbs
-=> [#<Crumb id: 34 ... >, #<Crumb id: 42 ... >, #<Crumb id: 53 ... >]
+Activities are objects of class `Crumb` and contain all the data you need to find out about what has changed in the update.
 
-> crumb = venue.crumbs.last
+
+```
+crumb = game.crumbs.last
 => #<Crumb id: 53 ... >
 
-> crumb.modifications
+crumb.modifications
 => {"name" => ["Belfast City Hall", "City Hall, Belfast"]}
-
-> crumb.subject
-=> #<Venue id: 1, name: "City Hall, Belfast" ... >
 
 ```
 
-Not too shabby. But crumbs can also track the user that made the change (creator), and even a secondary user affected by the change (target). By default the creator is considered to be the user associated with the object:
+The `.crumbs` method shown here is available to any class that is `redcrumbed` and is just a DataMapper::Collection. You can use it to construct any queries you like. For example, to get the last 10 activities on a `game`:
+
+```
+game.crumbs.all(:order => :created_at.desc, :limit => 10)
+```
+
+## User context
+
+Crumbs can also track the user that made the change (creator), and even a secondary user affected by the change (target). By default the creator is considered to be the user associated with the object:
 
 ```
 > user = User.find(2)
