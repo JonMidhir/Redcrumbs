@@ -98,10 +98,12 @@ describe Redcrumbs do
 
 
   describe '.redis' do
+    let!(:default_redis) { Redcrumbs.redis }
     subject { Redcrumbs.redis }
 
     context 'when given a URL string with port and scheme' do
       before { Redcrumbs.redis = 'redis://localhost:6379' }
+      after { Redcrumbs.redis = default_redis }
 
       it { expect(subject.namespace).to eq(:redcrumbs) }
       it { expect(subject.client.host).to eq('localhost') }
@@ -110,6 +112,7 @@ describe Redcrumbs do
 
     context 'when given a URL string without scheme' do
       before { Redcrumbs.redis = 'localhost:6379' }
+      after { Redcrumbs.redis = default_redis }
 
       it { expect(subject.namespace).to eq(:redcrumbs) }
       it { expect(subject.client.host).to eq('localhost') }
@@ -118,6 +121,7 @@ describe Redcrumbs do
 
     context 'when given a URL string with namespace' do
       before { Redcrumbs.redis = 'localhost:6379/some_namespace' }
+      after { Redcrumbs.redis = default_redis }
 
       it { expect(subject.namespace).to eq('some_namespace') }
     end
@@ -125,6 +129,7 @@ describe Redcrumbs do
     context 'when given an existing redis client' do
       let(:redis) { Redis.new }
       before { Redcrumbs.redis = redis }
+      after { Redcrumbs.redis = default_redis }
 
       it { expect(subject.redis).to eq(redis) }
     end
@@ -132,6 +137,7 @@ describe Redcrumbs do
     context 'when given an existing redis namespace' do
       let(:redis) { Redis::Namespace.new('some_namespace') }
       before { Redcrumbs.redis = redis }
+      after { Redcrumbs.redis = default_redis }
 
       it { is_expected.to eq(redis) }
     end

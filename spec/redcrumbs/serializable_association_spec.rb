@@ -88,6 +88,7 @@ describe Redcrumbs::SerializableAssociation do
     it 'should initialize from stored creator attributes' do
       new_foo.creator_type = player.class.name
       new_foo.stored_creator = {id: player.id, name: player.name}
+      new_foo.creator_id = player.id
 
       deserialized = new_foo.send('deserialize', :creator)
       expect(deserialized).to have_attributes(id: player.id, name: player.name)
@@ -99,7 +100,8 @@ describe Redcrumbs::SerializableAssociation do
     it 'should use config creator_class_sym option to initialize creator when not specified' do
       Redcrumbs.creator_class_sym = :player
 
-      new_foo.stored_creator = {id: player.id, name: player.name}
+      new_foo.stored_creator = {name: player.name}
+      new_foo.creator_id = player.id
 
       deserialized = new_foo.send('deserialize', :creator)
       expect(deserialized).to have_attributes(id: player.id, name: player.name)

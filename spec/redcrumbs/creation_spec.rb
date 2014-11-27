@@ -86,17 +86,6 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe 'self.deserialize_from_redcrumbs' do
-    context 'when given valid attributes' do
-      subject { Game.deserialize_from_redcrumbs(id: 12, name: 'Paperboy') }
-
-      it { is_expected.to have_attributes(:id => 12) }
-      it { is_expected.to have_attributes(:name => 'Paperboy') }
-      it { is_expected.to have_attributes(:highscore => nil) }
-    end
-  end
-
-
   describe '.watched_changes' do
     let(:game) { Game.create(:name => name, :highscore => score) }
     subject { game.watched_changes }

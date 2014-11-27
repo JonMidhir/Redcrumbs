@@ -143,18 +143,34 @@ module Redcrumbs
     #
     def deserialize(name)
       properties = send("stored_#{name}")
+      associated_id = send("#{name}_id")
 
-      return nil unless properties.present?
+      return nil unless properties.present? and associated_id
 
       class_name = send("#{name}_type")
+      class_name ||= config_class_name_for(name) unless name == :subject
 
-      if name == :subject
-        klass = class_name.classify.constantize
-        klass.deserialize_from_redcrumbs(properties)
-      else
-        class_name ||= config_class_name_for(name)
-        class_name.classify.constantize.new(properties, :without_protection => true)
-      end
+      instantiate_with_id(class_name, properties, associated_id)
+    end
+
+
+    private
+
+    # Return a properties hash that corresponds to the given class's
+    # column names.
+    #
+    def clean_properties(klass, properties)
+      properties.select {|k,v| klass.column_names.include?(k.to_s)}
+    end
+
+
+    def instantiate_with_id(class_name, properties, associated_id)
+      klass = class_name.classify.constantize
+      properties = clean_properties(klass, properties)
+
+      associated = klass.new(properties, :without_protection => true)
+      associated.id = associated_id
+      associated
     end
   end
 end

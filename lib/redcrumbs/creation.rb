@@ -1,13 +1,6 @@
 module Redcrumbs
   module Creation
     extend ActiveSupport::Concern
-
-    module ClassMethods
-      def deserialize_from_redcrumbs(attributes = {})
-        clean_attrs = attributes.select {|k,v| column_names.include?(k.to_s)}
-        new(clean_attrs, :without_protection => true)
-      end
-    end
     
     def crumbs
       Redcrumbs.crumb_class.all(

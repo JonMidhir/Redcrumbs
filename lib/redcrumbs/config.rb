@@ -65,16 +65,37 @@ module Redcrumbs
     else
       @@redis = Redis::Namespace.new(:redcrumbs, :redis => server)
     end
+
+    setup_datamapper!
+
     @@redis
   end
 
   def self.redis
-    return @@redis if @@redis
-    @@redis = Redis.respond_to?(:connect) ? Redis.connect : "localhost:6379"
     @@redis
   end
 
   private
+
+  # Note: Since it's not possible to access the exact connection the DataMapper adapter
+  # uses we have to use the @@redis module variable and make sure it's consistent.
+  #
+  def self.setup_datamapper!
+    adapter = DataMapper.setup(:default, 
+      { :adapter  => "redis", 
+        :host => self.redis.client.host, 
+        :port => self.redis.client.port, 
+        :password => self.redis.client.password
+      })
+
+    # For supporting namespaces:
+    #
+    adapter.resource_naming_convention = lambda do |value|
+      inflected_value = DataMapper::Inflector.pluralize(DataMapper::Inflector.underscore(value)).gsub('/', '_')
+
+      "#{self.redis.namespace}:#{inflected_value}"
+    end
+  end
 
   def self.constantize_class_name
     klass = @@class_name.to_s.classify.constantize
