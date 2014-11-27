@@ -22,6 +22,7 @@ module Redcrumbs
         define_setter_for(name)
         define_getter_for(name)
         define_loader_for(name)
+        define_load_state_getter(name)
 
         self
       end
@@ -51,12 +52,30 @@ module Redcrumbs
         end
       end
 
-      # Define method to force a re/load of the association from
-      # the database, overwriting any memoized version.
+
+      # Define method to force a load of the association from
+      # the database or return it if already loaded.
       #
       def define_loader_for(name)
         define_method("full_#{name}") do
-          instance_variable_set("@#{name}", load_associated(name))
+          if send("has_loaded_#{name}?")
+            instance_variable_get("@#{name}")
+          else
+            instance_variable_set("@#{name}_load_state", true)
+            instance_variable_set("@#{name}", load_associated(name))
+          end
+        end
+      end
+
+
+      # Define method to check if association has been fully loaded
+      # from the database.
+      #
+      def define_load_state_getter(name)
+        instance_variable_set("@#{name}_load_state", false)
+
+        define_method("has_loaded_#{name}?") do
+          instance_variable_get("@#{name}_load_state")
         end
       end
     end
@@ -152,7 +171,7 @@ module Redcrumbs
 
       instantiate_with_id(class_name, properties, associated_id)
     end
-    \
+    
 
     # Return a properties hash that corresponds to the given class's
     # column names.

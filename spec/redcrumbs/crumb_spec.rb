@@ -32,27 +32,32 @@ describe Redcrumbs::Crumb do
 
 
   describe 'subject' do
+    let(:crumb) { game.crumbs.last }
+
     context 'when instantiating a stored subject' do
-      subject { game.crumbs.last.subject }
+      subject! { crumb.subject }
 
       it { is_expected.to be_present }
       it { expect(subject.id).to eq(game.id) }
       it { expect(subject.name).to eq(game.name) }
       it { expect(subject.highscore).to be_nil }
+      it { expect(crumb).not_to have_loaded_subject }
     end
 
     context 'when retrieving a full subject' do
-      subject { game.crumbs.last.full_subject }
+      subject! { crumb.full_subject }
 
       it { is_expected.to be_present }
       it { is_expected.to eq(game) }
       it { expect(subject.highscore).to eq(game.highscore) }
+      it { expect(crumb).to have_loaded_subject }
     end
   end
 
 
   describe 'creator' do
     let!(:default_options) { Redcrumbs.store_creator_attributes.dup }
+    let(:crumb) { game.crumbs.last } 
 
     before do
       Redcrumbs.store_creator_attributes = [:name]
@@ -68,26 +73,29 @@ describe Redcrumbs::Crumb do
     end
 
     context 'when instantiating from storage' do
-      subject(:creator) { game.crumbs.last.creator }
+      subject!(:creator) { crumb.creator }
 
       it { is_expected.to be_present }
       it { expect(creator.id).to eq(player.id) }
       it { expect(creator.name).to eq(player.name) }
       it { expect(creator.created_at).to be_nil }
+      it { expect(crumb).not_to have_loaded_creator }
     end
 
     context 'when retrieving a full creator' do
-      subject(:creator) { game.crumbs.last.full_creator }
+      subject!(:creator) { crumb.full_creator }
 
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
       it { expect(creator.created_at.to_i).to eq(player.created_at.to_i) }
+      it { expect(crumb).to have_loaded_creator }
     end
   end
 
 
   describe 'target' do
     let!(:default_options) { Redcrumbs.store_target_attributes.dup }
+    let(:crumb) { game.crumbs.last } 
 
     before do
       Redcrumbs.store_target_attributes = [:name]
@@ -104,20 +112,22 @@ describe Redcrumbs::Crumb do
     end
 
     context 'when instantiating from storage' do
-      subject(:target) { game.crumbs.last.target }
+      subject!(:target) { crumb.target }
 
       it { is_expected.to be_present }
       it { expect(target.id).to eq(player.id) }
       it { expect(target.name).to eq(player.name) }
       it { expect(target.created_at).to be_nil }
+      it { expect(crumb).not_to have_loaded_target }
     end
 
     context 'when retrieving a full target' do
-      subject(:target) { game.crumbs.last.full_target }
+      subject!(:target) { crumb.full_target }
 
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
       it { expect(target.created_at.to_i).to eq(player.created_at.to_i) }
+      it { expect(crumb).to have_loaded_target }
     end
   end
 
