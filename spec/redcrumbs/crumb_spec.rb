@@ -2,100 +2,243 @@ require 'spec_helper.rb'
 
 describe Redcrumbs::Crumb do
   let(:player) { Player.create(:name => 'Jon Hope') }
-  let(:game) { Game.create(:name => 'Paperboy', :highscore => 3943, :high_scorer => player) }
+  let(:player_2) { Player.create(:name => 'Ash Dwyer') }
+  let(:game) { Game.create(:name => 'Paperboy', :highscore => 4001) }
 
-  before do
-    game.update_attributes(:name => 'Newspaper Delivery Person')
-    game.update_attributes(:highscore => 4001)
-    @first_crumb, @second_crumb, @last_crumb = game.crumbs.to_a
+  describe 'self.build_with_modifications' do
+    context 'when subject has no changes' do
+      subject { Redcrumbs::Crumb.build_with_modifications(game) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when subject has no watched changes' do
+      before  { game.platform = 'Spectrum'}
+      subject { Redcrumbs::Crumb.build_with_modifications(game) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when subject has changes' do
+      before { game.assign_attributes(:highscore => 19000, :name => 'Papergal') }
+
+      subject { Redcrumbs::Crumb.build_with_modifications(game).modifications }
+
+      it { is_expected.not_to eq({}) }
+      it { is_expected.to include('highscore' => [4001, 19000]) }
+      it { is_expected.to include('name' => ['Paperboy', 'Papergal']) }
+    end
   end
 
-  it 'defaults to ordering by number when finding through association' do
-    expect(@first_crumb.modifications).to eq({'name' => [nil, 'Paperboy'], 'highscore' => [nil, 3943]})
-    expect(@second_crumb.modifications).to eq({'name' => ['Paperboy', 'Newspaper Delivery Person']})
-    expect(@last_crumb.modifications).to eq({'highscore' => [3943, 4001]})
+
+  describe 'subject' do
+    context 'when instantiating a stored subject' do
+      subject { game.crumbs.last.subject }
+
+      it { is_expected.to be_present }
+      it { expect(subject.id).to eq(game.id) }
+      it { expect(subject.name).to eq(game.name) }
+      it { expect(subject.highscore).to be_nil }
+    end
+
+    context 'when retrieving a full subject' do
+      subject { game.crumbs.last.full_subject }
+
+      it { is_expected.to be_present }
+      it { is_expected.to eq(game) }
+      it { expect(subject.highscore).to eq(game.highscore) }
+    end
   end
 
-  it 'returns the stored subject' do
-    expect(@first_crumb.subject.id).to eq(game.id)
-    expect(@first_crumb.subject.name).to eq('Paperboy')
-    expect(@first_crumb.subject.highscore).to eq(nil)
-  end
 
-  it 'returns the full subject' do
-    expect(@first_crumb.full_subject.id).to eq(game.id)
-    expect(@first_crumb.full_subject.name).to eq('Newspaper Delivery Person')
-    expect(@first_crumb.full_subject.highscore).to eq(4001)
-  end
+  describe 'creator' do
+    let!(:default_options) { Redcrumbs.store_creator_attributes.dup }
 
-  it 'returns the creator' do
-    expect(@first_crumb.creator).to eq(player)
-    expect(@second_crumb.creator).to eq(player)
-    expect(@last_crumb.creator).to eq(player)
-  end
-
-  it 'initializes with modifications' do
-    crumb = Redcrumbs::Crumb.new(modifications: {'name' => [nil, 'Paperboy']})
-
-    expect(crumb.modifications).to eq({'name' => [nil, 'Paperboy']})
-  end
-
-  it 'initializes with subject' do
-    crumb = Redcrumbs::Crumb.new(subject: game)
-
-    expect(crumb.subject).to be(game)
-  end
-
-  it 'initializes from changed object' do
-    game.name = 'News Distribution Expert'
-
-    crumb = Redcrumbs::Crumb.build_with_modifications(game)
-
-    expect(crumb.modifications).to eq({'name' => ['Newspaper Delivery Person', 'News Distribution Expert']})
-  end
-
-  it 'assigns and returns subject_type' do
-    crumb = Redcrumbs::Crumb.new(subject: game)
-
-    expect(crumb.subject_type).to eq(game.class.to_s)
-  end
-
-  it 'assigns and returns subject_id' do
-    crumb = Redcrumbs::Crumb.new(subject: game)
-
-    expect(crumb.subject_id).to eq(game.id)
-  end
-
-  it 'returns the correct redis_key' do
-    crumb    = Redcrumbs::Crumb.new(subject: game)
-    crumb.id = 4
-
-    expect(crumb.redis_key).to eq('redcrumbs_crumbs:4')
-  end
-
-  # Mortality
-  context 'With mortality set globally' do
     before do
-      Redcrumbs.mortality = 30.days
-
-      game.update_attributes(name: 'News Distribution Expert')
-      @crumb = game.crumbs.last
+      Redcrumbs.store_creator_attributes = [:name]
+      game.update_attributes(:highscore => 20000, :high_scorer => player)
     end
 
-    after do
-      Redcrumbs.mortality = nil
+    after  { Redcrumbs.store_creator_attributes = default_options }
+
+    context 'when nil' do
+      subject(:creator) { game.crumbs.first.creator }
+
+      it { is_expected.not_to be_present }
     end
 
-    it 'sets the mortality according to global setting' do
-      expect(@crumb.mortal?).to eq(true)
+    context 'when instantiating from storage' do
+      subject(:creator) { game.crumbs.last.creator }
+
+      it { is_expected.to be_present }
+      it { expect(creator.id).to eq(player.id) }
+      it { expect(creator.name).to eq(player.name) }
+      it { expect(creator.created_at).to be_nil }
     end
 
-    it 'returns the correct ttl' do
-      expect(@crumb.time_to_live).to be_truthy
+    context 'when retrieving a full creator' do
+      subject(:creator) { game.crumbs.last.full_creator }
+
+      it { is_expected.to be_present }
+      it { is_expected.to eq(player) }
+      it { expect(creator.created_at.to_i).to eq(player.created_at.to_i) }
+    end
+  end
+
+
+  describe 'target' do
+    let!(:default_options) { Redcrumbs.store_target_attributes.dup }
+
+    before do
+      Redcrumbs.store_target_attributes = [:name]
+      game.update_attributes(:highscore => 19890, :high_scorer => player)
+      game.update_attributes(:highscore => 20000, :high_scorer => player_2)
     end
 
-    it 'returns the correct expires_at' do
-      expect(@crumb.expires_at.to_i).to eq((Time.now + @crumb.time_to_live).to_i)
+    after  { Redcrumbs.store_target_attributes = default_options }
+
+    context 'when nil' do
+      subject(:target) { game.crumbs.first.target }
+
+      it { is_expected.not_to be_present }
+    end
+
+    context 'when instantiating from storage' do
+      subject(:target) { game.crumbs.last.target }
+
+      it { is_expected.to be_present }
+      it { expect(target.id).to eq(player.id) }
+      it { expect(target.name).to eq(player.name) }
+      it { expect(target.created_at).to be_nil }
+    end
+
+    context 'when retrieving a full target' do
+      subject(:target) { game.crumbs.last.full_target }
+
+      it { is_expected.to be_present }
+      it { is_expected.to eq(player) }
+      it { expect(target.created_at.to_i).to eq(player.created_at.to_i) }
+    end
+  end
+
+
+  describe 'self.initialize' do
+    context 'with modifications' do
+      subject { Redcrumbs::Crumb.new(modifications: {'name' => [nil, 'Paperboy']}).modifications }
+
+      it { is_expected.not_to eq({}) }
+      it { is_expected.to include('name' => [nil, 'Paperboy']) }
+    end
+
+    context 'with subject' do
+      subject { Redcrumbs::Crumb.new(subject: game) }
+
+      it { is_expected.to have_attributes(:subject => game) }
+      it { is_expected.to have_attributes(:subject_id => game.id) }
+      it { is_expected.to have_attributes(:subject_type => game.class.name) }
+    end
+  end
+
+
+  describe '.redis_key' do
+    let!(:crumb) { Redcrumbs::Crumb.new(subject: game) }
+
+    context 'when new' do
+      subject { crumb.redis_key }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when persisted' do
+      before  { crumb.save }
+      subject { crumb.redis_key }
+
+      it { is_expected.to eq("redcrumbs_crumbs:#{crumb.id}")}
+    end
+  end
+
+
+  describe '.mortal?' do
+    let!(:default_value) { Redcrumbs.mortality }
+
+    context 'when unpersisted' do
+      subject { Redcrumbs::Crumb.new(subject: game).mortal? }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when mortal' do
+      before  { Redcrumbs.mortality = 30.days }
+      after   { Redcrumbs.mortality = default_value }
+      subject { Redcrumbs::Crumb.create(subject: game).mortal? }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when immortal' do
+      before  { Redcrumbs.mortality = nil }
+      after   { Redcrumbs.mortality = default_value }
+      subject { Redcrumbs::Crumb.create.mortal? }
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
+
+  describe '.time_to_live' do
+    let!(:default_value) { Redcrumbs.mortality }
+
+    context 'when unpersisted' do
+      subject { Redcrumbs::Crumb.new(subject: game).time_to_live }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when immortal' do
+      before  { Redcrumbs.mortality = nil }
+      after   { Redcrumbs.mortality = default_value }
+      subject { Redcrumbs::Crumb.create(subject: game).time_to_live }
+
+      it { is_expected.to eq(-1) }
+    end
+
+    context 'when mortal' do
+      before  { Redcrumbs.mortality = 30.days }
+      after   { Redcrumbs.mortality = default_value }
+      subject { Redcrumbs::Crumb.create(subject: game) }
+
+      it { expect(subject.time_to_live).to be_truthy }
+      it { expect(subject.time_to_live).to be_within(2.seconds.to_i).of(30.days.to_i) }
+    end
+  end
+
+
+  describe '.expires_at' do
+    let!(:default_value) { Redcrumbs.mortality }
+
+    context 'when unpersisted' do
+      let(:crumb) { Redcrumbs::Crumb.new }
+      subject { crumb.expires_at }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when mortal' do
+      before  { Redcrumbs.mortality = 30.days }
+      after   { Redcrumbs.mortality = default_value }
+      let(:crumb) { Redcrumbs::Crumb.create }
+      subject { crumb.expires_at.to_i }
+
+      it { is_expected.to be_truthy }
+      it { is_expected.to eq((Time.now + crumb.time_to_live).to_i) }
+    end
+
+    context 'when immortal' do
+      before  { Redcrumbs.mortality = nil }
+      after   { Redcrumbs.mortality = default_value }
+      subject { Redcrumbs::Crumb.new.expires_at }
+
+      it { is_expected.to be_nil }
     end
   end
 end

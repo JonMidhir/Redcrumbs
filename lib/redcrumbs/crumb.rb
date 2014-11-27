@@ -9,8 +9,6 @@ module Redcrumbs
     
     include DataMapper::Resource
     include Redcrumbs::SerializableAssociation
-
-    DataMapper.setup(:default, {:adapter  => "redis", :host => Redcrumbs.redis.client.host, :port => Redcrumbs.redis.client.port, :password => Redcrumbs.redis.client.password})
     
     property :id, Serial
     property :modifications, Json, :default => "{}", :lazy => false
@@ -18,7 +16,7 @@ module Redcrumbs
     property :updated_at, DateTime
 
     DataMapper.finalize
-    
+
     after :save, :set_mortality
 
     serializable_association :creator
@@ -63,7 +61,7 @@ module Redcrumbs
     end
 
     def redis_key
-      "redcrumbs_crumbs:#{id}"
+      "redcrumbs_crumbs:#{id}" if id
     end
 
     # Designed to mimic ActiveRecord's count. Probably not performant and only should be used for tests really
@@ -74,15 +72,19 @@ module Redcrumbs
     # Expiry
 
     def mortal?
-      !!time_to_live
+      return false if new?
+
+      time_to_live >= 0
     end
     
     def time_to_live
+      return nil if new?
+
       @ttl ||= Redcrumbs.redis.ttl(redis_key)
     end
 
     def expires_at
-      Time.now + time_to_live
+      Time.now + time_to_live if time_to_live
     end
     
     private

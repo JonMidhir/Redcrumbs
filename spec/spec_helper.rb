@@ -8,12 +8,16 @@ Bundler.require(:test)
 
 RSpec.configure do |c|
   c.before(:suite) do
+    Redcrumbs.redis = 'localhost:6379'
+    I18n.config.enforce_available_locales = true
     CreateSchema.suppress_messages{ CreateSchema.migrate(:up) }
-    Redcrumbs.creator_class_sym = :player
-    Redcrumbs.target_class_sym = :player
   end
 
-  c.after(:each) do
+  c.before(:each) do
+    Redcrumbs.redis.flushdb
+  end
+
+  c.after(:suite) do
     Redcrumbs.redis.flushdb
   end
 
