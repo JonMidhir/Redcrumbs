@@ -13,7 +13,6 @@ module Redcrumbs
   mattr_accessor :class_name
 
 
-  # Todo: Remove the default creator/target class and allow nil
   # This should only be used to load old crumbs from previous versions
   # of the gem, in future require an explicit creator/target method to set.
   #
@@ -68,10 +67,6 @@ module Redcrumbs
 
     setup_datamapper!
 
-    @@redis
-  end
-
-  def self.redis
     @@redis
   end
 
