@@ -21,8 +21,8 @@ script: bundle exec rspec
 
 branches:
   only:
+    - master
     - version_5.0
-    - configure_travis
 
 matrix:
   allow_failures:
