@@ -206,10 +206,9 @@ describe Redcrumbs::Crumb do
       before  { Redcrumbs.mortality = 30.days }
       after   { Redcrumbs.mortality = default_value }
       subject { Redcrumbs::Crumb.create(subject: game) }
-      # subject { crumb.time_to_live }
 
       it { expect(subject.time_to_live).to be_truthy }
-      it { expect(subject.time_to_live).to eq(30.days.to_i) }
+      it { expect(subject.time_to_live).to be_within(2.seconds.to_i).of(30.days.to_i) }
     end
   end
 
