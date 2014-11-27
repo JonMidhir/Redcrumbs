@@ -9,14 +9,6 @@ module Redcrumbs
     
     include DataMapper::Resource
     include Redcrumbs::SerializableAssociation
-
-    # DataMapper.setup(:default, 
-    #   { :adapter  => "redis", 
-    #     :namespace => Redcrumbs.redis.namespace,
-    #     :host => Redcrumbs.redis.client.host, 
-    #     :port => Redcrumbs.redis.client.port, 
-    #     :password => Redcrumbs.redis.client.password
-    #   })
     
     property :id, Serial
     property :modifications, Json, :default => "{}", :lazy => false
