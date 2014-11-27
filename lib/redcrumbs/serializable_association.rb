@@ -152,9 +152,7 @@ module Redcrumbs
 
       instantiate_with_id(class_name, properties, associated_id)
     end
-
-
-    private
+    \
 
     # Return a properties hash that corresponds to the given class's
     # column names.
