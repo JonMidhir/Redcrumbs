@@ -75,6 +75,45 @@ The `.crumbs` method shown here is available to any class that is `redcrumbed` a
 game.crumbs.all(:order => :created_at.desc, :limit => 10)
 ```
 
+## Creating a HTML activity feed
+
+Redcrumbs doesn't provide any helpers to turn crumbs into translated text or HTML views but this is extremely easy to do once you're set up and creating activities.
+
+Now that we know how to query activities associated with an object we just need to create a helper to translate this into readable text or HTML. Crumbs have a `subject` association that gives you access to the original object. This is useful when you need access to attributes that aren't in the modifications hash.
+
+Here's an example of a text simple helper:
+
+```ruby
+module ActivityHelper
+  def activity_text_from(crumb)
+    modifications = crumb.modifications
+    
+    message = 'Someone '
+    
+    fragments = []
+    fragments << "set a highscore of #{modifications['highscore']}" if modifications.has_key?('highscore')
+    
+    if modifications.has_key?('name')
+      fragments << "renamed #{modifications['name']} to #{modifications['name']}"
+    else
+      fragments[0] += " at #{crumb.subject.name}"
+    end
+    
+    message += fragments.to_sentence
+    message += '.'
+  end
+end
+```
+
+And an example of its output:
+
+```
+"Someone renamed Paperboy to Paperperson."
+"Someone set a highscore of 19840 at Paperperson."
+"Someone set a highscore of 21394 at Paperperson and renamed Paperperson to I WIN NOOBS."
+```
+
+
 ## User context
 
 Crumbs can also track the user that made the change (creator), and even a secondary user affected by the change (target). By default the creator is considered to be the user associated with the object:
