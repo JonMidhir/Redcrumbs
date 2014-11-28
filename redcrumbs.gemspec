@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/JonMidhir/Redcrumbs"
   s.summary     = %q{Fast and unobtrusive activity tracking of ActiveRecord models using DataMapper and Redis}
   s.description = %q{Fast and unobtrusive activity tracking of ActiveRecord models using DataMapper and Redis}
+  s.license     = 'MIT'
 
   s.rubyforge_project = "redcrumbs"
   
