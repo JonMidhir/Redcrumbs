@@ -11,7 +11,7 @@ Redcrumbs is designed to make it easy to start generating activity feeds in your
 
 Introducing activity feeds can come at significant cost, increasing the number of writes to your primary datastore across many controller actions - sometimes when previously only reads were being performed. Activity feeds have their own characteristics too; they're often not mission critical data, expirable over time and queried in predictable ways.
 
-It turns out Redis is an ideal solution. Superfast to write to and read from and with Memcached-style key expiration built in, leaving your primary database to focus on the business logic.
+It turns out Redis is an ideal solution. Super fast to write to and read from and with Memcached-style key expiration built in, leaving your primary database to focus on the business logic.
 
 
 ## Installation
