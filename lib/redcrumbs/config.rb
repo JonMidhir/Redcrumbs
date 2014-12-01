@@ -17,12 +17,25 @@ module Redcrumbs
   # of the gem, in future require an explicit creator/target method to set.
   #
   @@creator_class_sym ||= :user
-  @@creator_primary_key ||= 'id'
+  # @@creator_primary_key ||= 'id'
   @@target_class_sym ||= :user 
-  @@target_primary_key ||= 'id'
+  # @@target_primary_key ||= 'id'
 
   @@store_creator_attributes ||= []
   @@store_target_attributes ||= []
+
+
+  def self.primary_key_for(association_name)
+    raise ArgumentError unless [:creator, :target].include?(association_name)
+
+    send("#{association_name}_primary_key")
+  end
+
+  def self.class_name_for(association_name)
+    raise ArgumentError unless [:creator, :target].include?(association_name)
+    
+    send("#{association_name}_class_sym").to_s.classify
+  end
 
 
   # Constantises the class_name attribute, falls back to the Crumb default.

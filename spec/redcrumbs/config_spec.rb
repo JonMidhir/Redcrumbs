@@ -21,7 +21,7 @@ describe Redcrumbs do
     subject { Redcrumbs.creator_primary_key }
 
     context 'when unchanged' do
-      it { is_expected.to eq('id') }
+      it { is_expected.to be_nil }
     end
 
     context 'when changed to :name' do
@@ -53,7 +53,7 @@ describe Redcrumbs do
     subject { Redcrumbs.target_primary_key }
 
     context 'when unchanged' do
-      it { is_expected.to eq('id') }
+      it { is_expected.to be_nil }
     end
 
     context 'when changed to :name' do
