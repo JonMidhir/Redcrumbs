@@ -3,7 +3,7 @@ require 'spec_helper.rb'
 describe Redcrumbs::SerializableAssociation do
   let(:foo) { Class.new { include Redcrumbs::SerializableAssociation } }
 
-  describe 'self.serializable_association' do
+  describe '.serializable_association' do
     context 'when including module' do
       subject { foo.new }
       it { expect(foo).to respond_to(:serializable_association).with(1).argument }
@@ -34,7 +34,7 @@ describe Redcrumbs::SerializableAssociation do
   end
 
 
-  describe '.serialize' do
+  describe '#serialize' do
     let(:player) { Player.create(:name => "John Hope") }
     let(:game) { Game.create(:name => 'Paperboy', :highscore => 0)}
     let(:new_foo) { foo.new }
@@ -53,7 +53,7 @@ describe Redcrumbs::SerializableAssociation do
   end
 
 
-  describe '.deserialize' do
+  describe '#deserialize' do
     let(:player) { Player.create(:name => "John Hope") }
     let(:new_foo) { foo.new }
 

@@ -86,7 +86,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.watched_changes' do
+  describe '#watched_changes' do
     let(:game) { Game.create(:name => name, :highscore => score) }
     subject { game.watched_changes }
 
@@ -103,7 +103,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.storable_attributes_keys' do
+  describe '#storable_attributes_keys' do
     let!(:default_options) { Game.redcrumbs_options[:store].dup }
     after { Game.redcrumbs_options[:store] = default_options}
     subject { Game.new.storable_attributes_keys }
@@ -135,7 +135,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.storeable_attributes' do
+  describe '#storeable_attributes' do
     let!(:default_options) { Game.redcrumbs_options[:store].dup }
     after { Game.redcrumbs_options[:store] = default_options}
     subject { Game.new(name: name).storeable_attributes }
@@ -167,7 +167,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.storable_methods_names' do
+  describe '#storable_methods_names' do
     let!(:default_options) { Game.redcrumbs_options[:store].dup }
     after { Game.redcrumbs_options[:store] = default_options}
     subject { Game.new.storable_methods_names }
@@ -186,7 +186,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.storable_methods' do
+  describe '#storable_methods' do
     let!(:default_options) { Game.redcrumbs_options[:store].dup }
     after { Game.redcrumbs_options[:store] = default_options}
     subject { Game.new.storable_methods }
@@ -205,7 +205,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.serialized_as_redcrumbs_subject' do
+  describe '#serialized_as_redcrumbs_subject' do
     let!(:default_options) { Game.redcrumbs_options[:store].dup }
     after { Game.redcrumbs_options[:store] = default_options}
     subject { Game.new(name: name).serialized_as_redcrumbs_subject }
@@ -236,7 +236,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.create_crumb' do
+  describe '#create_crumb' do
     let(:game) { Game.new(:name => name, :platform => 'C64') }
     let(:crumb) { game.create_crumb }
 
@@ -255,7 +255,7 @@ describe Redcrumbs::Creation do
   end
 
 
-  describe '.notify_changes' do
+  describe '#notify_changes' do
     let(:game) { Game.create(:name => name, :platform => 'C64') }
 
     context 'without watched_changes' do

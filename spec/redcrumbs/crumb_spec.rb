@@ -5,7 +5,7 @@ describe Redcrumbs::Crumb do
   let(:player_2) { Player.create(:name => 'Ash Dwyer') }
   let(:game) { Game.create(:name => 'Paperboy', :highscore => 4001) }
 
-  describe 'self.build_with_modifications' do
+  describe '.build_with_modifications' do
     context 'when subject has no changes' do
       subject { Redcrumbs::Crumb.build_with_modifications(game) }
 
@@ -132,7 +132,7 @@ describe Redcrumbs::Crumb do
   end
 
 
-  describe 'self.initialize' do
+  describe '.initialize' do
     context 'with modifications' do
       subject { Redcrumbs::Crumb.new(modifications: {'name' => [nil, 'Paperboy']}).modifications }
 
@@ -150,7 +150,7 @@ describe Redcrumbs::Crumb do
   end
 
 
-  describe '.redis_key' do
+  describe '#redis_key' do
     let!(:crumb) { Redcrumbs::Crumb.new(subject: game) }
 
     context 'when new' do
@@ -168,7 +168,7 @@ describe Redcrumbs::Crumb do
   end
 
 
-  describe '.mortal?' do
+  describe '#mortal?' do
     let!(:default_value) { Redcrumbs.mortality }
 
     context 'when unpersisted' do
@@ -195,7 +195,7 @@ describe Redcrumbs::Crumb do
   end
 
 
-  describe '.time_to_live' do
+  describe '#time_to_live' do
     let!(:default_value) { Redcrumbs.mortality }
 
     context 'when unpersisted' do
@@ -223,7 +223,7 @@ describe Redcrumbs::Crumb do
   end
 
 
-  describe '.expires_at' do
+  describe '#expires_at' do
     let!(:default_value) { Redcrumbs.mortality }
 
     context 'when unpersisted' do

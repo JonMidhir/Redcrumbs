@@ -27,7 +27,7 @@ describe Redcrumbs::Users do
   end
 
 
-  describe '.crumbs_by' do
+  describe '#crumbs_by' do
     context 'when in reverse order' do
       subject { computer_player.crumbs_by(:order => [:created_at.desc, :id.desc]) }
 
@@ -36,7 +36,7 @@ describe Redcrumbs::Users do
   end
 
 
-  describe '.crumbs_for' do
+  describe '#crumbs_for' do
     context 'when in reverse order' do
       subject { computer_player.crumbs_for(:order => [:created_at.desc, :id.desc]) }
 
@@ -45,7 +45,7 @@ describe Redcrumbs::Users do
   end
 
 
-  describe '.crumbs_as_user' do
+  describe '#crumbs_as_user' do
     context 'when in reverse order' do
       subject { computer_player.crumbs_as_user(:order => [:created_at.desc, :id.desc]) }
 
