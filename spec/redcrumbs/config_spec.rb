@@ -21,17 +21,16 @@ describe Redcrumbs do
     subject { Redcrumbs.creator_primary_key }
 
     context 'when unchanged' do
-      it { is_expected.to eq('id') }
+      it { is_expected.to be_nil }
     end
 
     context 'when changed to :name' do
       before { Redcrumbs.creator_primary_key = :name }
-      after  { Redcrumbs.creator_primary_key = :id }
 
-      it { is_expected.to eq(:name)}
+      it { is_expected.to be_nil }
     end
   end
-
+  
 
   describe '.target_class_sym' do
     subject { Redcrumbs.target_class_sym }
@@ -53,14 +52,13 @@ describe Redcrumbs do
     subject { Redcrumbs.target_primary_key }
 
     context 'when unchanged' do
-      it { is_expected.to eq('id') }
+      it { is_expected.to be_nil }
     end
 
     context 'when changed to :name' do
       before { Redcrumbs.target_primary_key = :name }
-      after  { Redcrumbs.target_primary_key = :id }
 
-      it { is_expected.to eq(:name)}
+      it { is_expected.to be_nil}
     end
   end
 

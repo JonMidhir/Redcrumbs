@@ -15,9 +15,9 @@ module Redcrumbs
       def serializable_association(name)
         raise ArgumentError unless name and [:creator, :target, :subject].include?(name)
 
-        property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false
-        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true, :lazy => false
-        property "#{name}_type".to_sym, DataMapper::Property::String, :index => true, :lazy => false
+        property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false, :writer => :private
+        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true, :lazy => false, :writer => :private
+        property "#{name}_type".to_sym, DataMapper::Property::String, :index => true, :lazy => false, :writer => :private
 
         define_setter_for(name)
         define_getter_for(name)
@@ -33,7 +33,7 @@ module Redcrumbs
       #
       def define_setter_for(name)
         define_method("#{name}=") do |associated|
-          instance_variable_set("@#{name}".to_sym, associated)
+          instance_variable_set("@#{name}", associated)
 
           assign_id_for(name, associated)
           assign_type_for(name, associated)
@@ -86,29 +86,24 @@ module Redcrumbs
     def load_associated(name)
       return nil unless association_id = send("#{name}_id")
 
-      class_name = send("#{name}_type") || config_class_name_for(name)
-      klass = class_name.classify.constantize
+      klass = class_name_for(name).classify.constantize
 
-      primary_key = config_primary_key_for(name) || klass.primary_key
-
-      klass.where(primary_key => association_id).first
+      klass.find(association_id)
     end
 
     private
 
+
     # Assign the association id based on default primary key
     #
     def assign_id_for(name, associated)
-      id = if associated
-        primary_key = config_primary_key_for(name) or associated.class.primary_key
-        associated[primary_key]
-      end
+      id = associated.id if associated
 
       send("#{name}_id=", id)
     end
 
 
-    # Assign the association type based on default primary key
+    # Assign the association type
     #
     def assign_type_for(name, associated)
       type = associated ? associated.class.name : nil
@@ -126,22 +121,12 @@ module Redcrumbs
     end
 
 
-    # Get the class name from the config options, e.g.
-    # Redcrumbs.creator_class_sym
+    # Return the class name for an association name.
     #
-    def config_class_name_for(name)
-      Redcrumbs.send("#{name}_class_sym").to_s
+    def class_name_for(name)
+      send("#{name}_type") or Redcrumbs.class_name_for(name)
     end
 
-
-    # Get the expected primary key for the association from
-    # the config options.
-    #
-    def config_primary_key_for(name)
-      Redcrumbs.send("#{name}_primary_key")
-    rescue NoMethodError
-      nil
-    end
 
     # Serializes a given object by looking for its configuration options
     # or calling serialization method.
@@ -167,11 +152,11 @@ module Redcrumbs
       return nil unless properties.present? and associated_id
 
       class_name = send("#{name}_type")
-      class_name ||= config_class_name_for(name) unless name == :subject
+      class_name ||= Redcrumbs.class_name_for(name) unless name == :subject
 
       instantiate_with_id(class_name, properties, associated_id)
     end
-    
+
 
     # Return a properties hash that corresponds to the given class's
     # column names.
