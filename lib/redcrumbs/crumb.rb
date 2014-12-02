@@ -6,7 +6,6 @@ require 'redcrumbs/serializable_association'
 
 module Redcrumbs
   class Crumb
-    
     include DataMapper::Resource
     include Redcrumbs::SerializableAssociation
     
@@ -52,7 +51,7 @@ module Redcrumbs
 
       self.stored_subject = subject ? serialize(:subject, subject) : {}
       self.subject_id = subject ? subject.id : nil
-      assign_type_for(:subject, subject)
+      self.subject_type = subject ? subject.class.name : nil
 
       self.target  = subject.target  if subject.respond_to?(:target)
       self.creator = subject.creator if subject.respond_to?(:creator)

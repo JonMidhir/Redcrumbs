@@ -41,7 +41,7 @@ describe Redcrumbs::Crumb do
       it { expect(subject.id).to eq(game.id) }
       it { expect(subject.name).to eq(game.name) }
       it { expect(subject.highscore).to be_nil }
-      it { expect(crumb).not_to have_loaded_subject }
+      it { expect(crumb.named_association('subject')).not_to be_loaded }
     end
 
     context 'when retrieving a full subject' do
@@ -50,7 +50,7 @@ describe Redcrumbs::Crumb do
       it { is_expected.to be_present }
       it { is_expected.to eq(game) }
       it { expect(subject.highscore).to eq(game.highscore) }
-      it { expect(crumb).to have_loaded_subject }
+      it { expect(crumb.named_association('subject')).to be_loaded }
     end
   end
 
@@ -79,7 +79,7 @@ describe Redcrumbs::Crumb do
       it { expect(creator.id).to eq(player.id) }
       it { expect(creator.name).to eq(player.name) }
       it { expect(creator.created_at).to be_nil }
-      it { expect(crumb).not_to have_loaded_creator }
+      it { expect(crumb.named_association('creator')).not_to be_loaded }
     end
 
     context 'when retrieving a full creator' do
@@ -88,7 +88,7 @@ describe Redcrumbs::Crumb do
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
       it { expect(creator.created_at.to_i).to eq(player.created_at.to_i) }
-      it { expect(crumb).to have_loaded_creator }
+      it { expect(crumb.named_association('creator')).to be_loaded }
     end
   end
 
@@ -118,7 +118,7 @@ describe Redcrumbs::Crumb do
       it { expect(target.id).to eq(player.id) }
       it { expect(target.name).to eq(player.name) }
       it { expect(target.created_at).to be_nil }
-      it { expect(crumb).not_to have_loaded_target }
+      it { expect(crumb.named_association('target')).not_to be_loaded }
     end
 
     context 'when retrieving a full target' do
@@ -127,7 +127,7 @@ describe Redcrumbs::Crumb do
       it { is_expected.to be_present }
       it { is_expected.to eq(player) }
       it { expect(target.created_at.to_i).to eq(player.created_at.to_i) }
-      it { expect(crumb).to have_loaded_target }
+      it { expect(crumb.named_association('target')).to be_loaded }
     end
   end
 
