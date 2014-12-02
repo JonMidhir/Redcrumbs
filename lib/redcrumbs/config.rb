@@ -26,11 +26,11 @@ module Redcrumbs
   def self.target_primary_key
   end
 
-  def self.creator_primary_key=
+  def self.creator_primary_key=(key)
     warn 'Setting creator primary_key is no longer possible. Model primary_key will be used.'
   end
 
-  def self.target_primary_key=
+  def self.target_primary_key=(key)
     warn 'Setting target primary_key is no longer possible. Model primary_key will be used.'
   end
 

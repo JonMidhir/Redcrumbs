@@ -15,9 +15,9 @@ module Redcrumbs
       def serializable_association(name)
         raise ArgumentError unless name and [:creator, :target, :subject].include?(name)
 
-        property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false
-        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true, :lazy => false
-        property "#{name}_type".to_sym, DataMapper::Property::String, :index => true, :lazy => false
+        property "stored_#{name}".to_sym, DataMapper::Property::Json, :lazy => false, :writer => :private
+        property "#{name}_id".to_sym, DataMapper::Property::Integer, :index => true, :lazy => false, :writer => :private
+        property "#{name}_type".to_sym, DataMapper::Property::String, :index => true, :lazy => false, :writer => :private
 
         define_setter_for(name)
         define_getter_for(name)
@@ -33,7 +33,7 @@ module Redcrumbs
       #
       def define_setter_for(name)
         define_method("#{name}=") do |associated|
-          instance_variable_set("@#{name}".to_sym, associated)
+          instance_variable_set("@#{name}", associated)
 
           assign_id_for(name, associated)
           assign_type_for(name, associated)
@@ -86,29 +86,24 @@ module Redcrumbs
     def load_associated(name)
       return nil unless association_id = send("#{name}_id")
 
-      # class_name = send("#{name}_type") || config_class_name_for(name)
       klass = class_name_for(name).classify.constantize
 
-      primary_key = Redcrumbs.primary_key_for(name) || klass.primary_key
-
-      klass.where(primary_key => association_id).first
+      klass.find(association_id)
     end
 
     private
 
+
     # Assign the association id based on default primary key
     #
     def assign_id_for(name, associated)
-      id = if associated
-        primary_key = Redcrumbs.primary_key_for(name) or associated.class.primary_key
-        associated[primary_key]
-      end
+      id = associated.id if associated
 
       send("#{name}_id=", id)
     end
 
 
-    # Assign the association type based on default primary key
+    # Assign the association type
     #
     def assign_type_for(name, associated)
       type = associated ? associated.class.name : nil

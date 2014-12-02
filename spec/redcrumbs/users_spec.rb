@@ -5,25 +5,25 @@ describe Redcrumbs::Users do
   let(:player) { Player.create(:name => 'Jon Hope') }
 
   let!(:crumb_1) do 
-    c = Redcrumbs::Crumb.new
-    c.creator = computer_player
-    c.save
-    c
+    Redcrumbs::Crumb.new.tap do |crumb|
+      crumb.creator = computer_player
+      crumb.save
+    end
   end
 
   let!(:crumb_2) do 
-    c = Redcrumbs::Crumb.new
-    c.creator = computer_player
-    c.save
-    c
+    Redcrumbs::Crumb.new.tap do |crumb|
+      crumb.creator = computer_player
+      crumb.save
+    end
   end
 
   let!(:crumb_3) do 
-    c = Redcrumbs::Crumb.new
-    c.creator = player
-    c.target  = computer_player
-    c.save
-    c
+    Redcrumbs::Crumb.new.tap do |crumb|
+      crumb.creator = player
+      crumb.target  = computer_player
+      crumb.save
+    end
   end
 
 

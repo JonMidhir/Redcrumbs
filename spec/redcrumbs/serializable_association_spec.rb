@@ -15,13 +15,13 @@ describe Redcrumbs::SerializableAssociation do
 
       it { expect(foo.serializable_association(:creator)).to be_truthy }
       it { is_expected.to respond_to(:creator_id).with(0).arguments }
-      it { is_expected.to respond_to(:creator_id=).with(1).arguments }
+      # it { is_expected.to respond_to(:creator_id=).with(1).arguments }
       it { is_expected.to respond_to(:creator_type).with(0).arguments }
-      it { is_expected.to respond_to(:creator_type=).with(1).arguments }
+      # it { is_expected.to respond_to(:creator_type=).with(1).arguments }
       it { is_expected.to respond_to(:stored_creator).with(0).arguments }
-      it { is_expected.to respond_to(:stored_creator=).with(1).arguments }
+      # it { is_expected.to respond_to(:stored_creator=).with(1).arguments }
       it { is_expected.to respond_to(:creator).with(0).arguments }
-      it { is_expected.to respond_to(:creator=).with(1).arguments }
+      # it { is_expected.to respond_to(:creator=).with(1).arguments }
       it { is_expected.to respond_to(:full_creator).with(0).arguments }
       it { is_expected.to respond_to(:has_loaded_creator?).with(0).arguments }
     end
@@ -72,9 +72,9 @@ describe Redcrumbs::SerializableAssociation do
 
     context 'with stored attributes' do
       before do
-        new_foo.creator_type = player.class.name
-        new_foo.stored_creator = {id: player.id, name: player.name}
-        new_foo.creator_id = player.id
+        new_foo.send(:creator_type=, player.class.name)
+        new_foo.send(:stored_creator=, {id: player.id, name: player.name})
+        new_foo.send(:creator_id=, player.id)
       end
 
       subject { new_foo.send('deserialize', :creator) }
@@ -87,8 +87,8 @@ describe Redcrumbs::SerializableAssociation do
       before do 
         Redcrumbs.creator_class_sym = :player
 
-        new_foo.stored_creator = { name: player.name }
-        new_foo.creator_id = player.id
+        new_foo.send(:stored_creator=, { name: player.name })
+        new_foo.send(:creator_id=, player.id)
       end
 
       after  { Redcrumbs.creator_class_sym = :user }
