@@ -1,5 +1,6 @@
 require 'dm-core'
 require 'dm-types'
+require 'redcrumbs/polymorphic_association'
 
 module Redcrumbs
   module SerializableAssociation
@@ -22,25 +23,11 @@ module Redcrumbs
         define_setter_for(name)
         define_getter_for(name)
         define_loader_for(name)
-        define_load_state_getter(name)
 
         self
       end
 
       private
-
-      # Define a setter, e.g. object.creator=
-      #
-      def define_setter_for(name)
-        define_method("#{name}=") do |associated|
-          instance_variable_set("@#{name}", associated)
-
-          assign_id_for(name, associated)
-          assign_type_for(name, associated)
-          assign_serialized_attributes(name, associated)
-        end
-      end
-
 
       # Define a getter, e.g. object.creator
       #
@@ -48,7 +35,23 @@ module Redcrumbs
         define_method("#{name}") do
           instance_variable_get("@#{name}") or
           instance_variable_set("@#{name}", deserialize(name)) or
-          instance_variable_set("@#{name}", load_associated(name))
+          instance_variable_set("@#{name}", named_association(name).load)
+        end
+      end
+
+
+      # Define a setter, e.g. object.creator=
+      #
+      def define_setter_for(name)
+        define_method("#{name}=") do |associated|
+          association = PolymorphicAssociation.with(associated)
+
+          instance_variable_set "@#{name}_association", association
+          instance_variable_set "@#{name}", associated
+
+          send "#{name}_id=",     association.id
+          send "#{name}_type=",   association.class_name
+          send "stored_#{name}=", serialize(name, associated)
         end
       end
 
@@ -58,67 +61,21 @@ module Redcrumbs
       #
       def define_loader_for(name)
         define_method("full_#{name}") do
-          if send("has_loaded_#{name}?")
-            instance_variable_get("@#{name}")
-          else
-            instance_variable_set("@#{name}_load_state", true)
-            instance_variable_set("@#{name}", load_associated(name))
-          end
-        end
-      end
-
-
-      # Define method to check if association has been fully loaded
-      # from the database.
-      #
-      def define_load_state_getter(name)
-        instance_variable_set("@#{name}_load_state", false)
-
-        define_method("has_loaded_#{name}?") do
-          instance_variable_get("@#{name}_load_state")
+          named_association(name).load
         end
       end
     end
 
 
-    # Load the association from the database.
-    #
-    def load_associated(name)
-      return nil unless association_id = send("#{name}_id")
+    def named_association(name)
+      association   = instance_variable_get("@#{name}_association")
+      association ||= PolymorphicAssociation.new(class_name_for(name), self["#{name}_id"])
 
-      klass = class_name_for(name).classify.constantize
-
-      klass.find(association_id)
+      instance_variable_set("@#{name}_association", association)
     end
+
 
     private
-
-
-    # Assign the association id based on default primary key
-    #
-    def assign_id_for(name, associated)
-      id = associated.id if associated
-
-      send("#{name}_id=", id)
-    end
-
-
-    # Assign the association type
-    #
-    def assign_type_for(name, associated)
-      type = associated ? associated.class.name : nil
-
-      send("#{name}_type=", type)
-    end
-
-
-    # Serialize and assign the association
-    #
-    def assign_serialized_attributes(name, associated)
-      serialized = associated ? serialize(name, associated) : {}
-
-      send("stored_#{name}=", serialized)
-    end
 
 
     # Return the class name for an association name.
@@ -132,6 +89,8 @@ module Redcrumbs
     # or calling serialization method.
     #
     def serialize(name, associated)
+      return {} unless associated
+
       if name == :subject
         associated.serialized_as_redcrumbs_subject
       else

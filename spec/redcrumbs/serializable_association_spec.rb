@@ -15,15 +15,10 @@ describe Redcrumbs::SerializableAssociation do
 
       it { expect(foo.serializable_association(:creator)).to be_truthy }
       it { is_expected.to respond_to(:creator_id).with(0).arguments }
-      # it { is_expected.to respond_to(:creator_id=).with(1).arguments }
       it { is_expected.to respond_to(:creator_type).with(0).arguments }
-      # it { is_expected.to respond_to(:creator_type=).with(1).arguments }
       it { is_expected.to respond_to(:stored_creator).with(0).arguments }
-      # it { is_expected.to respond_to(:stored_creator=).with(1).arguments }
       it { is_expected.to respond_to(:creator).with(0).arguments }
-      # it { is_expected.to respond_to(:creator=).with(1).arguments }
       it { is_expected.to respond_to(:full_creator).with(0).arguments }
-      it { is_expected.to respond_to(:has_loaded_creator?).with(0).arguments }
     end
 
     context 'when given an invalid association' do
@@ -33,8 +28,8 @@ describe Redcrumbs::SerializableAssociation do
   end
 
   context "inclusion of module" do
-    it 'should define a public load_associated method' do
-      expect(foo.new).to respond_to(:load_associated).with(1).arguments
+    it 'should define a public named_association method' do
+      expect(foo.new).to respond_to(:named_association).with(1).arguments
     end
   end
 
