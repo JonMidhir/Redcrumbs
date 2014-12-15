@@ -153,7 +153,7 @@ player.crumbs_by
 ```
 
 ```ruby
-# Activities targetting a user
+# Activities targeting a user
 player.crumbs_for
 ```
 
