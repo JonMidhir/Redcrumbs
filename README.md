@@ -16,7 +16,7 @@ It turns out Redis is an ideal solution. Super fast to write to and read from an
 
 ## Installation
 
-You'll need access to a [Redis](http://redis.io) server running locally, remotely or from a managed service; such as [Redis Labs](https://redislabs.com/). 
+You'll need access to a [Redis](http://redis.io) server running locally, remotely or from a managed service; such as [Redis Labs](https://redislabs.com/).
 
 Add the Gem to your Gemfile:
 
@@ -40,7 +40,7 @@ Start tracking a model by adding `redcrumbed` to the class:
 ```ruby
 class Game < ActiveRecord::Base
   redcrumbed :only => [:name, :highscore]
-  
+
   validates :name, :presence => true
   validates :highscore, :presence => true
 end
@@ -87,18 +87,18 @@ Here's an example of a simple text helper:
 module ActivityHelper
   def activity_text_from(crumb)
     modifications = crumb.modifications
-    
+
     message = 'Someone '
-    
+
     fragments = []
-    fragments << "set a highscore of #{modifications['highscore']}" if modifications.has_key?('highscore')
-    
+    fragments << "set a highscore of #{modifications['highscore'][1]}" if modifications.has_key?('highscore')
+
     if modifications.has_key?('name')
-      fragments << "renamed #{modifications['name']} to #{modifications['name']}"
+      fragments << "renamed #{modifications['name'][0]} to #{modifications['name'][1]}"
     else
       fragments[0] += " at #{crumb.subject.name}"
     end
-    
+
     message += fragments.to_sentence
     message += '.'
   end
@@ -116,7 +116,7 @@ And examples of its output:
 
 ## User context
 
-Simply reporting that 'Someone did xyz' isn't very useful, so Redcrumbs has user context baked in. 
+Simply reporting that 'Someone did xyz' isn't very useful, so Redcrumbs has user context baked in.
 
 #### Whodunnit?
 
@@ -125,9 +125,9 @@ Crumbs can track the user that made the change (or any object really) as `creato
 ```ruby
 class Game < ActiveRecord::Base
   redcrumbed :only => [:name, :highscore]
-  
+
   has_one :high_scorer, class_name: 'Player'
-  
+
   def creator
     high_scorer
   end
@@ -138,7 +138,7 @@ To get the creator and target of a crumb:
 
      crumb.creator
      => #<Player id: 394 ...>
-     
+
      crumb.target
      => #<ComputerPlayer id: 3 ...>
 
@@ -171,7 +171,7 @@ You can pass `:if` and `:unless` options to the redcrumbed method to control whe
 ```ruby
 class Game < ActiveRecord::Base
   redcrumbed :only => [:name, :highscore], :unless => :new_record?
-  
+
   #...
 end
 ```
@@ -183,7 +183,7 @@ In many cases to assemble your feed you'll only ever need the `modifications` ma
 ```ruby
 class Game < ActiveRecord::Base
   redcrumbed :only => [:name, :highscore], :store => {:only => [:id, :name]}
-  
+
   #...
 end
 ```
@@ -216,7 +216,7 @@ Tested against:
 
 ## To-do
 
-Allow swapping out the backend to mongo or other key value stores. 
+Allow swapping out the backend to mongo or other key value stores.
 
 ## Testing
 
