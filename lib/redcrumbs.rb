@@ -38,7 +38,7 @@ require 'dm-core'
 module Redcrumbs
   extend ActiveSupport::Concern
   extend ActiveSupport::Autoload
-  
+
   autoload :Options
   autoload :Users
   autoload :Creation
@@ -46,7 +46,7 @@ module Redcrumbs
 
   include Options
   include Users
-  
+
   def self.setup
     yield self
   end
@@ -54,13 +54,13 @@ module Redcrumbs
   def self.included(base)
     base.extend(ClassMethods)
   end
-  
+
   module ClassMethods
     def redcrumbed(options = {})
       include Creation
-      
+
       prepare_redcrumbed_options(options)
-      
+
       after_save :notify_changes, self.redcrumbs_callback_options
 
     end
