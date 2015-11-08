@@ -49,9 +49,9 @@ module Redcrumbs
           instance_variable_set "@#{name}_association", association
           instance_variable_set "@#{name}", associated
 
-          send "#{name}_id=",     association.id
-          send "#{name}_type=",   association.class_name
-          send "stored_#{name}=", serialize(name, associated)
+          attribute_set "#{name}_id",     association.id
+          attribute_set "#{name}_type",   association.class_name
+          attribute_set "stored_#{name}", serialize(name, associated)
         end
       end
 
@@ -81,7 +81,7 @@ module Redcrumbs
     # Return the class name for an association name.
     #
     def class_name_for(name)
-      send("#{name}_type") or Redcrumbs.class_name_for(name)
+      self["#{name}_type"] or Redcrumbs.class_name_for(name)
     end
 
 
@@ -105,12 +105,12 @@ module Redcrumbs
     # serialized attributes only.
     #
     def deserialize(name)
-      properties = send("stored_#{name}")
-      associated_id = send("#{name}_id")
+      properties = self["stored_#{name}"]
+      associated_id = self["#{name}_id"]
 
       return nil unless properties.present? and associated_id
 
-      class_name = send("#{name}_type")
+      class_name = self["#{name}_type"]
       class_name ||= Redcrumbs.class_name_for(name) unless name == :subject
 
       instantiate_with_id(class_name, properties, associated_id)
