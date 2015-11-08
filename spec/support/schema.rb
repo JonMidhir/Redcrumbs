@@ -7,12 +7,12 @@ class CreateSchema < ActiveRecord::Migration
   def self.up
     create_table :computer_players, :force => true do |t|
       t.string :name
-      t.timestamps
+      t.timestamps null: true
     end
 
     create_table :players, :force => true do |t|
       t.string :name
-      t.timestamps
+      t.timestamps null: true
     end
 
     create_table :games, :force => true do |t|
@@ -20,7 +20,7 @@ class CreateSchema < ActiveRecord::Migration
       t.string :name
       t.string :platform
       t.integer :highscore
-      t.timestamps
+      t.timestamps null: true
     end
   end
 end
