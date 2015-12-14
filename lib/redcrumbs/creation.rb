@@ -1,10 +1,14 @@
 module Redcrumbs
   module Creation
     extend ActiveSupport::Concern
-    
+
+    included do
+      before_destroy :delete_crumbs
+    end
+
     def crumbs
       Redcrumbs.crumb_class.all(
-        :subject_type => self.class.to_s, 
+        :subject_type => self.class.to_s,
         :subject_id => self.id
       )
     end
@@ -15,8 +19,8 @@ module Redcrumbs
 
     def storable_attributes_keys
       store = self.class.redcrumbs_options[:store]
-      
-      store[:only] or 
+
+      store[:only] or
       symbolized_attribute_keys(store[:except]) or
       []
     end
@@ -34,28 +38,33 @@ module Redcrumbs
         []
       end
     end
-    
+
     # Todo: Fix inconsistent naming; storable vs storeable
     def storable_methods
       storable_methods_names.inject({}) {|h, n| h.merge(n.to_s => send(n))}
     end
-    
+
     def serialized_as_redcrumbs_subject
       storeable_attributes.merge(storable_methods)
     end
-    
+
     def create_crumb
       n = Redcrumbs.crumb_class.build_with_modifications(self)
       n.save
       n
     end
-    
+
     # This is called after the record is saved to store the changes on the model, including anything done in before_save validations
     def notify_changes
       create_crumb unless watched_changes.empty?
     end
-    
+
     private
+
+    def delete_crumbs
+      keys = crumbs.map(&:redis_key)
+      Redcrumbs.redis.del(keys)
+    end
 
     def symbolized_attribute_keys(except = [])
       return nil unless except
@@ -63,7 +72,7 @@ module Redcrumbs
       symbolized_attribute_keys = attributes.dup.symbolize_keys!.keys
       symbolized_attribute_keys.reject {|key| except.include?(key)}
     end
-    
+
     def methods_from_array(array)
       self.class.instance_methods.select {|method| array.include?(method.to_sym)}
     end

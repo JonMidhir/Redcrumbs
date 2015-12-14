@@ -22,6 +22,10 @@ RSpec.configure do |c|
   end
 
   c.mock_with :rspec
+
+  c.filter_run focus: true
+  c.run_all_when_everything_filtered = true
+
 end
 
 Dir[File.expand_path('../support/*.rb', __FILE__)].each{|f| require f }

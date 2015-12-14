@@ -11,24 +11,40 @@ describe Redcrumbs::Creation do
       it { expect(subject.crumbs.count).to eq(1) }
     end
 
-    context 'when single tracked attribute updated' do
-      it do 
+    context 'when deleted' do
+
+      # Generate more crumbs
+      before do
+        subject.update_attributes(:highscore => 12935)
+        subject.update_attributes(:name => 'Paperboy 2')
+      end
+
+      it do
+        total_crumbs = subject.crumbs.count
         expect {
-          subject.update_attributes(:highscore => 12935) 
+          subject.destroy
+        }.to change { subject.crumbs.count }.by(-total_crumbs)
+      end
+    end
+
+    context 'when single tracked attribute updated' do
+      it do
+        expect {
+          subject.update_attributes(:highscore => 12935)
         }.to change { subject.crumbs.count }.by(1)
       end
     end
 
     context 'when multiple tracked attributes updated' do
-      it do 
+      it do
         expect {
-          subject.update_attributes(:highscore => 12935, :name => 'Paperboy 2') 
+          subject.update_attributes(:highscore => 12935, :name => 'Paperboy 2')
         }.to change { subject.crumbs.count }.by(1)
       end
     end
 
     context 'when updated twice' do
-      it do 
+      it do
         expect {
           subject.update_attributes(:highscore => 12935)
           subject.update_attributes(:name => 'Paperboy 2')
@@ -37,7 +53,7 @@ describe Redcrumbs::Creation do
     end
 
     context 'when untracked attribute updated' do
-      it do 
+      it do
         expect {
           subject.update_attributes(:platform => 'Commodore 64')
         }.to change { subject.crumbs.count }.by(0)
